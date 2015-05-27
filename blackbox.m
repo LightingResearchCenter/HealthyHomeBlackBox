@@ -1,18 +1,19 @@
-function [scheduleObj,pacemakerObj,distanceToGoal] = blackbox(goalObj,lightReadingObj,activityReadingObj,varargin)
+function [treatmentObj,pacemakerObj,distanceToGoal] = blackbox(runTimeUTC,runTimeOffset,version,subjectId,hubId,goalObj,lightReadingObj,activityReadingObj,varargin)
 %BLACKBOX Create light treatment schedule and measure progress toward goal.
 %
-%   [SCHEDULEOBJ,PACEMAKEROBJ,DISTANCETOGOAL] = BLACKBOX(GOALOBJ,
-%   LIGHTREADINGOBJ,ACTIVITYREADINGOBJ) On the first run a pacemakerObj has
-%   not yet been created so it is omitted from the input. GOALOBJ is an
-%   object of class goal. LIGHTREADINGOBJ is an object of class
-%   lightReading. ACTIVITYREADINGOBJ is an object of class activityReading.
+%   [TREATMENTOBJ,PACEMAKEROBJ,DISTANCETOGOAL] = BLACKBOX(RUNTIMEUTC,
+%   RUNTIMEOFFSET,VERSION,SUBJECTID,HUBID,GOALOBJ,LIGHTREADINGOBJ,
+%   ACTIVITYREADINGOBJ) On the first run a pacemakerObj has not yet been 
+%   created so it is omitted from the input. GOALOBJ is an object of class 
+%   goal. LIGHTREADINGOBJ is an object of class lightReading. 
+%   ACTIVITYREADINGOBJ is an object of class activityReading.
 %
-%   [scheduleObj,pacemakerObj,distanceToGoal] = BLACKBOX(...,
-%   prevPacemakerObj) On subsequent calls to this function provide the 
+%   [TREATMENTOBJ,PACEMAKEROBJ,DISTANCETOGOAL] = BLACKBOX(...,
+%   PREVPACEMAKEROBJ) On subsequent calls to this function provide the 
 %   previous pacemakerObj as an input.
 %
-%   See also INCLUDES.GOAL, INCLUDES.LIGHTREADING, INCLUDES.ACTIVITYREADING,
-%   INCLUDES.PACEMAKEROBJ, INCLUDES.SCHEDULEOBJ.
+%   See also INCLUDES.GOAL, INCLUDES.LIGHTREADING, 
+%   INCLUDES.ACTIVITYREADING, INCLUDES.PACEMAKER, INCLUDES.TREATMENT.
 
 %   Author(s): G. Jones,    2015-05-21
 %   	       A. Bierman,  2015-05-26
@@ -21,16 +22,25 @@ function [scheduleObj,pacemakerObj,distanceToGoal] = blackbox(goalObj,lightReadi
 %   References:
 %     reference goes here
 
+% Black Box model version
+model = 'INSERT VERSION HERE';
+
 % Import classdefs
 import includes.*
 
 % Parse input
 p = inputParser;
+addRequired(p,'runTimeUTC',@isnumeric);
+addRequired(p,'runTimeOffset',@isnumeric);
+addRequired(p,'version',@ischar);
+addRequired(p,'subjectId',@ischar);
+addRequired(p,'hubId',@ischar);
 addRequired(p,'goalObj',@(x)isa(x,'includes.goal'));
 addRequired(p,'lightReadingObj',@(x)isa(x,'includes.lightReading'));
 addRequired(p,'activityReadingObj',@(x)isa(x,'includes.activityReading'));
 addOptional(p,'pacemakerObj',[],@(x)isa(x,'includes.pacemaker'));
-parse(p,goalObj,lightReadingObj,activityReadingObj,varargin{:});
+parse(p,runTimeUTC,runTimeOffset,version,subjectId,hubId,goalObj,...
+    lightReadingObj,activityReadingObj,varargin{:});
 
 % Reassign parsed input
 goalObj = p.Results.goalObj;
@@ -42,8 +52,8 @@ pacemakerObj = p.Results.pacemakerObj;
 lightDuration    = lightReadingObj.timeUTC(end)    - lightReadingObj.timeUTC(1);
 activityDuration = activityReadingObj.timeUTC(end) - activityReadingObj.timeUTC(1);
 if lightDuration < 86400 || activityDuration < 86400
-    scheduleObj     = [];
-    pacemakerObj	= [];
+    treatmentObj     = [];
+    pacemakerObj	= pacemaker(runTimeUTC,runTimeOffset,version,model);
     distanceToGoal	= [];
     return
 end
@@ -68,6 +78,7 @@ else
     xc0	= pacemakerObj.xcn;
 end
 
-
+pacemakerObj = pacemaker(runTimeUTC,runTimeOffset,version,model,...
+    'x0',x0,'xc0',xc0,'t0',t0,'xn',xn,'xcn',xcn,'tn',tn);
 end
 
