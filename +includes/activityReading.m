@@ -72,6 +72,13 @@ classdef activityReading
             obj.privateActivityCounts	= [obj.activityCounts; newObj.activityCounts];
         end
         
+        function obj = truncate(obj,idx)
+            obj.privateTimeUTC          = obj.timeUTC(idx);
+            obj.privateTimeOffset       = obj.timeOffset(idx);
+            obj.privateActivityIndex	= obj.activityIndex(idx);
+            obj.privateActivityCounts	= obj.activityCounts(idx);
+        end
+        
         function timeUTC = get.timeUTC(obj)
             timeUTC = obj.privateTimeUTC;
         end

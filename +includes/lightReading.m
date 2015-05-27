@@ -111,6 +111,16 @@ classdef lightReading
             obj.privateCs           = [obj.cs; newObj.cs];
         end
         
+        function obj = truncate(obj,idx)
+            obj.privateTimeUTC      = obj.timeUTC(idx);
+            obj.privateTimeOffset	= obj.timeOffset(idx);
+            obj.privateRed          = obj.red(idx);
+            obj.privateGreen        = obj.green(idx);
+            obj.privateBlue         = obj.blue(idx);
+            obj.privateCla          = obj.cla(idx);
+            obj.privateCs           = obj.cs(idx);
+        end
+        
         function timeUTC = get.timeUTC(obj)
             timeUTC = obj.privateTimeUTC;
         end
