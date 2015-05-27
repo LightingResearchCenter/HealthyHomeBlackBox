@@ -18,7 +18,7 @@ classdef activityReading
     
     methods
         % Object creation
-        function obj = lightReading(timeUTC,timeOffset,varargin)
+        function obj = activityReading(timeUTC,timeOffset,varargin)
             % Parse the matched pair input.
             p = inputParser;
             defaultValue = [];
