@@ -1,4 +1,4 @@
-function LRCconfig
+function LRCconfig %#codegen
 %LRCCONFIG Gloabally declare and define parameters.
 %   Define static parameters and make them accessable from a global
 %   variable.
@@ -18,9 +18,9 @@ function LRCconfig
 
 global LRCparam
 
-LRCparam = struct(      ...
-    'paramName1',  1,	...
-    'paramName2',  2    ...
+LRCparam = struct(              ...
+    'model',        '0.1.0',    ...	% Model version
+    'paramName2',	2           ...
     );
 
 end
