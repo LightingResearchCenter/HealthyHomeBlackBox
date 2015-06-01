@@ -24,7 +24,7 @@ else
     xcAcrophase = 0;
 end
 
-xNeedle = [0,cos(distanceToGoal/86400*pi+pi/2)];
+xNeedle = [0,-cos(distanceToGoal/86400*pi+pi/2)];
 yNeedle = [0,sin(distanceToGoal/86400*pi+pi/2)];
 
 %axisHandle1.XLim = [max(timeCS)-10, max(timeCS)];
