@@ -1,4 +1,4 @@
-function [scheduleStruct,pacemakerStruct,distanceToGoal,acrophase] = blackbox(bedTime,wakeTime,lightReadingStruct,activityReadingStruct,pacemakerStruct)
+function [schedule,pacemaker,distanceToGoal] = blackbox(runTimeUTC,runTimeOffset,bedTime,riseTime,lightReading,activityReading,pacemaker)
 %BLACKBOX Create light treatment schedule and measure progress toward goal.
 %
 %   [SCHEDULEOBJ,PACEMAKEROBJ,DISTANCETOGOAL] = BLACKBOX(GOALOBJ,
@@ -26,35 +26,34 @@ phaseDiffMax = 5*3600; % seconds
 
 % Return empty results and exit if less than 24 hours of data
 %if (~isempty(lightReadingStruct))
-lightDuration = lightReadingStruct.timeUTC(end) - lightReadingStruct.timeUTC(1);
-activityDuration = activityReadingStruct.timeUTC(end) - activityReadingStruct.timeUTC(1);
+lightDuration = lightReading.timeUTC(end) - lightReading.timeUTC(1);
+activityDuration = activityReading.timeUTC(end) - activityReading.timeUTC(1);
 if lightDuration < 86400 || activityDuration < 86400
-    scheduleStruct = [];
-    pacemakerStruct	= [];
+    schedule = [];
+    pacemaker	= [];
     distanceToGoal	= [];
-    acrophase = [];
     return
 end
 
 % Truncate data to 10 most recent days
 tenDays = 86400*10;
 if lightDuration > tenDays
-    idx = lightReadingStruct.timeUTC >= (lightReadingStruct.timeUTC(end) - tenDays);
-    lightReadingStruct.timeUTC = lightReadingStruct.timeUTC(idx);
-    lightReadingStruct.cs = lightReadingStruct.cs(idx);
+    idx = lightReading.timeUTC >= (lightReading.timeUTC(end) - tenDays);
+    lightReading.timeUTC = lightReading.timeUTC(idx);
+    lightReading.cs = lightReading.cs(idx);
 end
 if activityDuration > tenDays
-    idx = activityReadingStruct.timeUTC >= (activityReadingStruct.timeUTC(end) - tenDays);
-    activityReadingStruct.timeUTC = activityReadingStruct.timeUTC(idx);
-    activityReadingStruct.activityIndex = activityReadingStruct.activityIndex(idx);
+    idx = activityReading.timeUTC >= (activityReading.timeUTC(end) - tenDays);
+    activityReading.timeUTC = activityReading.timeUTC(idx);
+    activityReading.activityIndex = activityReading.activityIndex(idx);
 end
 
 % Calculate target phase
-targetPhase = bedWakeTimes2TargetPhase(bedTime,wakeTime);
+targetPhase = bedWakeTimes2TargetPhase(bedTime,riseTime);
 
 % Calculate activity acrophase
-time = activityReadingStruct.timeUTC + activityReadingStruct.timeOffset; % seconds
-[M,A,phi] = n_cosinorFit(time,activityReadingStruct.activityIndex,1/86400,1); % Fit activity data with cosine function
+time = activityReading.timeUTC + activityReading.timeOffset; % seconds
+[M,A,phi] = n_cosinorFit(time,activityReading.activityIndex,1/86400,1); % Fit activity data with cosine function
 acrophase = -phi/pi*43200; % Time of day, in seconds, when acrophase occurs
 %acrophase = mod(acrophase,86400)
 %
@@ -63,22 +62,22 @@ if (acrophase < 0)
 end
 %
 % Check if the pacemakerStruct has previous values
-if isempty(pacemakerStruct)
+if isempty(pacemaker)
     [t0LocalRel,x0,xc0] = refPhaseTime2StateAtTime(acrophase,mod(time(1),86400),'activityAcrophase');
-    t0 = t0LocalRel + 86400*floor(time(1)/86400) - activityReadingStruct.timeOffset; % convert back to absolute UTC Unix time
+    t0 = t0LocalRel + 86400*floor(time(1)/86400) - activityReading.timeOffset; % convert back to absolute UTC Unix time
     %phaseDiffState = 0; % Initialize value
-    CS = lightReadingStruct.cs;
+    CS = lightReading.cs;
 else
-    t0  = pacemakerStruct.t(end);
-    x0  = pacemakerStruct.x(end);
-    xc0	= pacemakerStruct.xc(end);
-    t0LocalRel = mod(mod(t0,86400) + activityReadingStruct.timeOffset,86400);
-    idx = find(lightReadingStruct.timeUTC > pacemakerStruct.t(end)); % light readings recorded since last run
-    CS = lightReadingStruct.cs(idx);
+    t0  = pacemaker.t(end);
+    x0  = pacemaker.x(end);
+    xc0	= pacemaker.xc(end);
+    t0LocalRel = mod(mod(t0,86400) + activityReading.timeOffset,86400);
+    idx = find(lightReading.timeUTC > pacemaker.t(end)); % light readings recorded since last run
+    CS = lightReading.cs(idx);
 end
 
 % Advance pacemaker model solution to end of light and activity data
-lightSampleIncrement = (lightReadingStruct.timeUTC(end) - lightReadingStruct.timeUTC(1))/(length(lightReadingStruct.timeUTC)-1);
+lightSampleIncrement = (lightReading.timeUTC(end) - lightReading.timeUTC(1))/(length(lightReading.timeUTC)-1);
 % lightSampleIncrement = mode(round(diff(lightReadingObj.timeUTC))); % alternate method
 [tfLocalRel,xf,xcf] = pacemakerModelRun(t0LocalRel,x0,xc0,lightSampleIncrement,CS);
 
@@ -100,8 +99,8 @@ end
 % If phase difference between activity acrophase and the pacemaker model is
 % greater than phaseDiffMax then reset model to activity acrophase
 if abs(phaseDiffState) > phaseDiffMax
-    idx = find(activityReadingStruct.timeUTC > pacemakerStruct.t(end),1,'first'); % first activity reading recorded since last run
-    startTimeNewDataRel = mod(activityReadingStruct.timeUTC(idx) + activityReadingStruct.timeOffset,86400);
+    idx = find(activityReading.timeUTC > pacemaker.t(end),1,'first'); % first activity reading recorded since last run
+    startTimeNewDataRel = mod(activityReading.timeUTC(idx) + activityReading.timeOffset,86400);
     [t0LocalRel,x0,xc0] = refPhaseTime2StateAtTime(acrophase,startTimeNewDataRel,'activityAcrophase');
     %t0 = t0LocalRel + 86400*floor(time(1)/86400) - activityReadingStruct.timeOffset; % convert back to absolute UTC Unix time
     [tfLocalRel,xf,xcf] = pacemakerModelRun(t0LocalRel,x0,xc0,lightSampleIncrement,CS);
@@ -111,9 +110,9 @@ end
 
 % Place state variables in pacemakerStruct structure
 tf = t0 + (tfLocalRel-t0LocalRel); % convert to absoulute Unix time (seconds since Jan 1, 1970)
-pacemakerStruct.t = tf;
-pacemakerStruct.x = xf;
-pacemakerStruct.xc = xcf;
+pacemaker.t = tf;
+pacemaker.x = xf;
+pacemaker.xc = xcf;
 
 currentRefPhaseTime = stateAtTime2RefPhaseTime(tfLocalRel,xAcrophase,xcAcrophase);
 % distanceToGoal = mod(targetPhase - currentRefPhaseTime,86400); % seconds
@@ -131,6 +130,6 @@ disp(['pacemakerPhase = ',num2str(currentRefPhaseTime/3600)]);
 increment = 3600; % seconds
 lightLevel = 0.4; % CS
 nDaysPlan = 2; % Days
-scheduleStruct = createlightschedule(tf,xf,xcf,increment,targetPhase,lightLevel,nDaysPlan);
+schedule = createlightschedule(tf,xf,xcf,increment,targetPhase,lightLevel,nDaysPlan);
 
 end
