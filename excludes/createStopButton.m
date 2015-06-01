@@ -37,10 +37,10 @@ figurePosition = get(figureHandle,'Position');
 axisPosition = get(axisHandle,'Position');
 buttonPosition = get(buttonHandle,'Position');
 
-%x = (axisPosition(1) - buttonPosition(3))/2;
-%y = figurePosition(4) - x - buttonPosition(4);
-x = axisPosition(1)-450;
-y = axisPosition(1) - 180;
+x = (figurePosition(3) - buttonPosition(3))/2;
+y = (figurePosition(4) - buttonPosition(4))/2;
+% x = axisPosition(1)-450;
+% y = axisPosition(1) - 180;
 buttonPosition(1) = max([x,0]);
 buttonPosition(2) = max([y,0]);
 %buttonHandle.Position = buttonPosition;
