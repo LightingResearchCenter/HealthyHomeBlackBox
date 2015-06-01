@@ -3,8 +3,11 @@ close all
 clear
 clc
 
+%%
+addpath('excludes');
+
 %% Set static variables
-pauseDuration	= 0.5;	% Pause time between loops in seconds
+pauseDuration	= 0;	% Pause time between loops in seconds
 timeOffset      = -4*3600;	% Simulated offset from UTC in seconds
 simDuration     = 2*3600;	% Duration of time to simulate in seconds
 samplingInterval= 30;	% Simulated sampling interval in seconds
@@ -38,12 +41,9 @@ pacemakerStruct = [];
 startTimeUTC = datenum2unix(now); % seconds
 [lightReadingStruct,activityReadingStruct] = simulateData(startTimeUTC,timeOffset,simDuration,samplingInterval);
 
-% Calculate target phase
-targetPhase = bedWakeTimes2TargetPhase(bedTime,wakeTime)
-
 runflag = true;
 while runflag % infinite loop
-    [scheduleStruct,newPacemakerStruct,distanceToGoal,activityAcrophase] = blackbox(targetPhase,lightReadingStruct,activityReadingStruct,pacemakerStruct);
+    [scheduleStruct,newPacemakerStruct,distanceToGoal,activityAcrophase] = blackbox(bedTime,wakeTime,lightReadingStruct,activityReadingStruct,pacemakerStruct);
     % Append pacemakerStruct
     if ~isempty(newPacemakerStruct)
         if isempty(pacemakerStruct)

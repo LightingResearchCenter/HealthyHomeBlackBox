@@ -1,4 +1,4 @@
-function [scheduleStruct,pacemakerStruct,distanceToGoal,acrophase] = blackbox(targetPhase,lightReadingStruct,activityReadingStruct,pacemakerStruct)
+function [scheduleStruct,pacemakerStruct,distanceToGoal,acrophase] = blackbox(bedTime,wakeTime,lightReadingStruct,activityReadingStruct,pacemakerStruct)
 %BLACKBOX Create light treatment schedule and measure progress toward goal.
 %
 %   [SCHEDULEOBJ,PACEMAKEROBJ,DISTANCETOGOAL] = BLACKBOX(GOALOBJ,
@@ -24,7 +24,6 @@ function [scheduleStruct,pacemakerStruct,distanceToGoal,acrophase] = blackbox(ta
 % Parameter constants
 phaseDiffMax = 5*3600; % seconds
 
-
 % Return empty results and exit if less than 24 hours of data
 %if (~isempty(lightReadingStruct))
 lightDuration = lightReadingStruct.timeUTC(end) - lightReadingStruct.timeUTC(1);
@@ -49,6 +48,9 @@ if activityDuration > tenDays
     activityReadingStruct.timeUTC = activityReadingStruct.timeUTC(idx);
     activityReadingStruct.activityIndex = activityReadingStruct.activityIndex(idx);
 end
+
+% Calculate target phase
+targetPhase = bedWakeTimes2TargetPhase(bedTime,wakeTime);
 
 % Calculate activity acrophase
 time = activityReadingStruct.timeUTC + activityReadingStruct.timeOffset; % seconds
@@ -114,7 +116,14 @@ pacemakerStruct.x = xf;
 pacemakerStruct.xc = xcf;
 
 currentRefPhaseTime = stateAtTime2RefPhaseTime(tfLocalRel,xAcrophase,xcAcrophase);
-distanceToGoal = mod(targetPhase - currentRefPhaseTime,86400); % seconds
+% distanceToGoal = mod(targetPhase - currentRefPhaseTime,86400); % seconds
+distanceToGoal = mod(currentRefPhaseTime,86400) - mod(targetPhase,86400); % seconds
+if distanceToGoal < -12*60*60
+    distanceToGoal = distanceToGoal + 24*60*60;
+elseif distanceToGoal >= 12*60*60
+    distanceToGoal = distanceToGoal - 24*60*60;
+end
+
 disp(['targetPhase = ',num2str(targetPhase/3600)]);
 disp(['pacemakerPhase = ',num2str(currentRefPhaseTime/3600)]);
 
