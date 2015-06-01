@@ -15,20 +15,20 @@ bedTime         = 22.5; % hour 0 <= bedTime < 24
 wakeTime        = 6.5;  % hour, 0 <= wakeTime < 24
 
 %% Define structures
-lightReadingStruct.timeUTC = datenum2unix(now);
-lightReadingStruct.timeOffset = timeOffset;
-lightReadingStruct.red = [];
-lightReadingStruct.green = [];
-lightReadingStruct.blue = [];
-lightReadingStruct.cla = [];
-lightReadingStruct.cs = [];
+lightReading.timeUTC = datenum2unix(now);
+lightReading.timeOffset = timeOffset;
+lightReading.red = [];
+lightReading.green = [];
+lightReading.blue = [];
+lightReading.cla = [];
+lightReading.cs = [];
 
-activityReadingStruct.timeUTC = datenum2unix(now);
-activityReadingStruct.timeOffset = timeOffset;
-activityReadingStruct.activityIndex = [];
-activityReadingStruct.activityCounts = [];
+activityReading.timeUTC = datenum2unix(now);
+activityReading.timeOffset = timeOffset;
+activityReading.activityIndex = [];
+activityReading.activityCounts = [];
 
-pacemakerStruct = [];
+pacemaker = [];
 %pacemakerStruct.t = [];
 %pacemakerStruct.x = [];
 %pacemakerStruct.xc = [];
@@ -39,35 +39,23 @@ pacemakerStruct = [];
 
 % Create initial set of simulated light and activity
 startTimeUTC = datenum2unix(now); % seconds
-[lightReadingStruct,activityReadingStruct] = simulateData(startTimeUTC,timeOffset,simDuration,samplingInterval);
+[lightReading,activityReading] = simulateData(startTimeUTC,timeOffset,simDuration,samplingInterval);
 
 runflag = true;
 while runflag % infinite loop
-    [scheduleStruct,newPacemakerStruct,distanceToGoal,activityAcrophase] = blackbox(bedTime,wakeTime,lightReadingStruct,activityReadingStruct,pacemakerStruct);
+    [scheduleStruct,newPacemaker,distanceToGoal,activityAcrophase] = blackbox(bedTime,wakeTime,lightReading,activityReading,pacemaker);
     % Append pacemakerStruct
-    if ~isempty(newPacemakerStruct)
-        if isempty(pacemakerStruct)
-            pacemakerStruct.t = newPacemakerStruct.t;
-            pacemakerStruct.x = newPacemakerStruct.x;
-            pacemakerStruct.xc = newPacemakerStruct.xc;
-        else
-            pacemakerStruct.t = [pacemakerStruct.t;newPacemakerStruct.t];
-            pacemakerStruct.x = [pacemakerStruct.x;newPacemakerStruct.x];
-            pacemakerStruct.xc = [pacemakerStruct.xc;newPacemakerStruct.xc];
-        end
-    end
+    pacemaker = appendStruct(pacemaker,newPacemaker);
     
-    updateFigure(axisHandle1,axisHandle2,axisHandle3,textHandle,lightReadingStruct,activityReadingStruct,pacemakerStruct,activityAcrophase,distanceToGoal);
+    updateFigure(axisHandle1,axisHandle2,axisHandle3,textHandle,lightReading,activityReading,pacemaker,activityAcrophase,distanceToGoal);
     display(['Distance to goal = ',num2str(distanceToGoal/3600),' hours']); % hours
     pause(pauseDuration);
     
     % Generate simulated light and activity for next loop
-    startTimeUTC = lightReadingStruct.timeUTC(end) + samplingInterval;
+    startTimeUTC = lightReading.timeUTC(end) + samplingInterval;
     [newLightReadingStruct,newActivityReadingStruct] = simulateData(startTimeUTC,timeOffset,simDuration,samplingInterval);
-    lightReadingStruct.timeUTC = [lightReadingStruct.timeUTC;newLightReadingStruct.timeUTC];
-    lightReadingStruct.cs = [lightReadingStruct.cs;newLightReadingStruct.cs];
-    activityReadingStruct.timeUTC  = [activityReadingStruct.timeUTC;newActivityReadingStruct.timeUTC];
-    activityReadingStruct.activityIndex  = [activityReadingStruct.activityIndex;newActivityReadingStruct.activityIndex];
+    lightReading = appendStruct(lightReading,newLightReadingStruct);
+    activityReading = appendStruct(activityReading,newActivityReadingStruct);
 end
 
 display('The program has been stopped.');
