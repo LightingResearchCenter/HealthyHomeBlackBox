@@ -1,4 +1,4 @@
-function [figureHandle,axisHandle1,axisHandle2,axisHandle3,textHandle] = createFigure
+function [figureHandle,axisHandles,textHandle] = createFigure
 %CREATEFIGURE Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -17,6 +17,7 @@ textHandle = configureAxis3(axisHandle3);
 % Create stop button
 createStopButton(figureHandle);
 
+axisHandles = [axisHandle1;axisHandle2;axisHandle3];
 end
 
 
@@ -89,19 +90,20 @@ xcAcrophase = [0];
 %hold(axisHandle,'on');
 
 set(axisHandle,'YLim',[-1.2,1.2],'XLim',[-1.2,1.2]);
-plotHandle = plot(axisHandle,xf,xcf,'ro',xArray,xcArray,'b-',xAcrophase,xcAcrophase,'gs');
+% plotHandle = plot(axisHandle,xf,xcf,'ro',xArray,xcArray,'b-',xAcrophase,xcAcrophase,'gs');
+plotHandle = plot(axisHandle,xf,xcf,'ro',xArray,xcArray,'b-');
 
 set(axisHandle,'DataAspectRatio',[1,1,1]);
 
 %hold(axisHandle,'off');
 
 % Link data
-set(plotHandle(1),'XDataSource','xf');
-set(plotHandle(1),'YDataSource','xcf');
+set(plotHandle(1),'XDataSource','xn');
+set(plotHandle(1),'YDataSource','xcn');
 set(plotHandle(2),'XDataSource','xArray');
 set(plotHandle(2),'YDataSource','xcArray');
-set(plotHandle(3),'XDataSource','xAcrophase');
-set(plotHandle(3),'YDataSource','xcAcrophase');
+% set(plotHandle(3),'XDataSource','xAcrophase');
+% set(plotHandle(3),'YDataSource','xcAcrophase');
 end
 
 function textHandle = configureAxis3(axisHandle)

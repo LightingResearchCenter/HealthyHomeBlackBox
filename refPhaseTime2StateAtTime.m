@@ -43,3 +43,4 @@ phi = phi*pi/43200; % convert from 24-hour time to radians
 x = -cos(2*pi*t/86400 - phi);
 xc = sin(2*pi*t/86400 - phi);
 
+end

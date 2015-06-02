@@ -1,4 +1,4 @@
-function [tf,xf,xcf] = pacemakerModelRun(t0,x0,xc0,increment,lightArray)
+function [tn,xn,xcn] = pacemakerModelRun(t0,x0,xc0,increment,lightArray)
 %   PACEMAKERMODELRUN runs the LRC's version of the circadian pacemaker 
 %   model (based on Kronauer's 1999 paper) using the given light data.
 %
@@ -16,25 +16,25 @@ function [tf,xf,xcf] = pacemakerModelRun(t0,x0,xc0,increment,lightArray)
 %       xcf: Pacemaker state variable #2 (y-axix) final value
 %
 
-%% Create local variables
+% Create local variables
 nsteps = 30;
 
-%% Initial loop values
+% Initial loop values
 t1 = t0;
 t2 = t1 + increment;
 
-%% Loop
+% Loop
 for iStep = 1:length(lightArray)-1
     % Set light drive
     lightDrive = (lightArray(iStep) + lightArray(iStep + 1))/2;
     
-    [tf,xf,xcf] = rk4stepperSec(x0,xc0,lightDrive,t1,t2,nsteps);
+    [tn,xn,xcn] = rk4stepperSec(x0,xc0,lightDrive,t1,t2,nsteps);
     
     % update loop variables
     t1 = t2;
     t2 = t1 + increment;
-    x0 = xf;
-    xc0 = xcf;
+    x0 = xn;
+    xc0 = xcn;
 end
 
 end

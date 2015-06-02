@@ -3,45 +3,110 @@ close all
 clear
 clc
 
-%%
 addpath('excludes');
 
-%% Set static variables
+%% Set constants
 pauseDuration	= 0;	% Pause time between loops in seconds
+maxLoop         = 10^10; % Maximum number of loops
 simDuration     = 2*3600;	% Duration of time to simulate in seconds
 samplingInterval= 30;	% Simulated sampling interval in seconds
 bedTime         = 22.5; % hours, 0 <= bedTime < 24
-wakeTime        = 6.5;  % hours, 0 <= wakeTime < 24
+riseTime        = 6.5;  % hours, 0 <= wakeTime < 24
 
-%% Create initial data set. Replace with read from file.
-pacemaker = [];
-%pacemakerStruct.t = [];
-%pacemakerStruct.x = [];
-%pacemakerStruct.xc = [];
+%% Initialize files. Stored in temporary location.
+[filePaths] = LRCinitTempFiles;
+
+%% Initialize data and variables
+% Get current UTC time and offset from system
+[runTimeUTC,runTimeOffset] = getTime;
+% Create initial set of simulated light and activity
+[lightReading,activityReading] = simulateData(...
+    runTimeUTC,runTimeOffset,simDuration,samplingInterval);
+% Save simulated data to file
+filePointers = LRCopen(filePaths,'a');
+LRCappend_file(filePointers.lightReading,lightReading);
+LRCappend_file(filePointers.activityReading,activityReading);
+LRCclose(filePointers);
+
+% Initialize input struct
+InputStruct = struct(                                           ...
+    'runTimeUTC',               runTimeUTC,                     ...
+    'runTimeOffset',            runTimeOffset,                  ...
+    'bedTime',                  bedTime,                        ...
+    'riseTime',                 riseTime,                       ...
+    'lightReadingPointer',      filePointers.lightReading,      ...
+    'activityReadingPointer',   filePointers.activityReading,   ...
+    'pacemakerPointer',         filePointers.pacemaker          ...
+    );
 
 %% Simulate multiple runs
 % Create and initialize figure
-[figureHandle,axisHandle1,axisHandle2,axisHandle3,textHandle] = createFigure;
-
-% Create initial set of simulated light and activity
-[nowTimeUTC,nowTimeOffset] = getTime; % Current time and offset from system
-[lightReading,activityReading] = simulateData(nowTimeUTC,nowTimeOffset,simDuration,samplingInterval);
+[figureHandle,axisHandles,textHandle] = createFigure;
 
 runflag = true;
-while runflag % infinite loop
-    [scheduleStruct,newPacemaker,distanceToGoal,activityAcrophase] = blackbox(bedTime,wakeTime,lightReading,activityReading,pacemaker);
-    % Append pacemakerStruct
-    pacemaker = appendStruct(pacemaker,newPacemaker);
+counter = 0;
+while runflag && counter <= maxLoop
+    % Get current UTC time and offset from system
+    [runTimeUTC,runTimeOffset] = getTime;
     
-    updateFigure(axisHandle1,axisHandle2,axisHandle3,textHandle,lightReading,activityReading,pacemaker,activityAcrophase,distanceToGoal);
-    display(['Distance to goal = ',num2str(distanceToGoal/3600),' hours']); % hours
+    % Open the files for read only
+    filePointers = LRCopen(filePaths,'r');
+    
+    % Update the input struct in case something has changed
+    InputStruct.runTimeUTC              = runTimeUTC;
+    InputStruct.runTimeOffset           = runTimeOffset;
+    InputStruct.bedTime                 = bedTime;
+    InputStruct.riseTime                = riseTime;
+    InputStruct.lightReadingPointer     = filePointers.lightReading;
+    InputStruct.activityReadingPointer	= filePointers.activityReading;
+    InputStruct.pacemakerPointer        = filePointers.pacemaker;
+    
+    % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ %
+    % RUN THE MODEL                    %
+    OutputStruct = wrapper(InputStruct);
+    % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ %
+    
+    % Close and reopen files for appending
+    LRCclose(filePointers);
+    LRCopen(filePaths,'a');
+    
+    % Append new pacemaker struct to file
+    LRCappend_file(filePointers.pacemaker,OutputStruct.pacemaker);
+    
+    % Update graphics and UI
+    updateFigure(axisHandles,textHandle,filePaths,OutputStruct);
     pause(pauseDuration);
     
     % Generate simulated light and activity for next loop
     startTimeUTC = lightReading.timeUTC(end) + samplingInterval;
-    [newLightReadingStruct,newActivityReadingStruct] = simulateData(startTimeUTC,nowTimeOffset,simDuration,samplingInterval);
-    lightReading = appendStruct(lightReading,newLightReadingStruct);
-    activityReading = appendStruct(activityReading,newActivityReadingStruct);
+    [lightReading,activityReading] = simulateData(...
+        startTimeUTC,runTimeOffset,simDuration,samplingInterval);
+    LRCappend_file(filePointers.lightReading,lightReading);
+    LRCappend_file(filePointers.activityReading,activityReading);
+    
+    % Close the files
+    LRCclose(filePointers)
+    
+    % Increment the counter
+    counter = counter + 1;
+end
+
+%% Close out and clean up
+% Close the files
+fclose('all');
+% Prompt the user if they would like to save the files
+[choice,options] = LRCdialogSaveTemp;
+switch choice
+    case options{1}
+        % Prompt user for save path
+        saveDir = uigetdir(pwd,'Select save location.');
+        LRCmove(saveDir,filePaths)
+    case options{2}
+        % Permanently delete temporary files
+        LRCdelete(filePaths);
+    otherwise
+        % Issue warning
+        warning(LRCwarningTempFiles(filePaths));
 end
 
 display('The program has been stopped.');
