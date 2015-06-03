@@ -21,12 +21,6 @@ function [treatment,pacemaker,distanceToGoal] = blackbox(runTimeUTC,runTimeOffse
 %   References:
 %     reference goes here
 
-% Get parameters if not already in memory
-% persistent LRCparam
-% if isempty(LRCparam)
-    LRCparam = LRCconfig;
-% end
-
 % Initialize outputs
 treatment = struct(     ...
     'startTimeUTC', [], ...
@@ -35,8 +29,8 @@ treatment = struct(     ...
 pacemaker = struct(      ...
     'runTimeUTC',       runTimeUTC,	...
     'runTimeOffset',	runTimeOffset,	...
-    'version',          LRCparam.version,	...
-    'model',            LRCparam.model,	...
+    'version',          LRCgetAppVer,	...
+    'model',            LRCmodel,	...
     'x0',               [],	...
     'xc0',              [],	...
     't0',               [],	...
@@ -58,8 +52,8 @@ if lightDuration < 86400 || activityDuration < 86400
 end
 
 % Truncate data to most recent
-lightReading    = LRCtruncate_reading(lightReading,   LRCparam.readingDuration);
-activityReading = LRCtruncate_reading(activityReading,LRCparam.readingDuration);
+lightReading    = LRCtruncate_reading(lightReading,   LRCreadingDuration);
+activityReading = LRCtruncate_reading(activityReading,LRCreadingDuration);
 lastPacemaker   = LRCtruncate_pacemaker(pacemakerArray);
 
 % Calculate target phase
@@ -106,7 +100,7 @@ phaseDiff = LRCphaseDifference(xcn,xn,xcAcrophase,xAcrophase);
 
 % If phase difference between activity acrophase and the pacemaker model is
 % greater than phaseDiffMax then reset model to activity acrophase
-if abs(phaseDiff) > LRCparam.phaseDiffMax
+if abs(phaseDiff) > LRCphaseDiffMax
     idx = find(activityReading.timeUTC > lastPacemaker.tn,1,'first'); % first activity reading recorded since last run
     startTimeNewDataLocal = LRCutc2local(activityReading.timeUTC(idx),activityReading.timeOffset(idx));
     startTimeNewDataRel = LRCabs2relTime(startTimeNewDataLocal);
