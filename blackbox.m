@@ -98,20 +98,11 @@ lightSampleIncrement = (lightReading.timeUTC(end) - lightReading.timeUTC(1))/(le
 [~,xAcrophase,xcAcrophase] = refPhaseTime2StateAtTime(acrophase,mod(tnLocalRel,86400),'activityAcrophase');
 
 % Calculate phase difference from pacemaker state variables
-pacemakerPhase = atan2(xcn,xn)*43200/pi;
-pacemakerPhase = mod(pacemakerPhase,86400);
-activityPhase = atan2(xcAcrophase,xAcrophase)*43200/pi;
-activityPhase = mod(activityPhase,86400);
-phaseDiffState = pacemakerPhase - activityPhase;
-if (phaseDiffState > 43200)
-    phaseDiffState = 43200 - phaseDiffState;
-elseif (phaseDiffState < -43200)
-    phaseDiffState = -43200 - phaseDiffState;
-end
+phaseDiff = LRCphaseDifference(xcn,xn,xcAcrophase,xAcrophase);
 
 % If phase difference between activity acrophase and the pacemaker model is
 % greater than phaseDiffMax then reset model to activity acrophase
-if abs(phaseDiffState) > LRCparam.phaseDiffMax
+if abs(phaseDiff) > LRCparam.phaseDiffMax
     idx = find(activityReading.timeUTC > lastPacemaker.tn,1,'first'); % first activity reading recorded since last run
     startTimeNewDataRel = mod(activityReading.timeUTC(idx) + activityReading.timeOffset(idx),86400);
     [t0LocalRel,x0,xc0] = refPhaseTime2StateAtTime(acrophase,startTimeNewDataRel,'activityAcrophase');
