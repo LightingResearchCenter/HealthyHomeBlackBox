@@ -1,5 +1,5 @@
-function reading = LRCtruncateReading(reading,durationSec)
-%LRCTRUNCATEREADING Truncate lightReading or activityReading
+function reading = LRCtruncate_reading(reading,durationSec)
+%LRCTRUNCATE_READING Truncate lightReading or activityReading
 %   Discards readings older than the specified duration. One of the fields
 %   must be timeUTC. All fields must be vertical arrays of equal size.
 

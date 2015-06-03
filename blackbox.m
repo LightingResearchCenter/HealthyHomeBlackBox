@@ -55,8 +55,8 @@ if lightDuration < 86400 || activityDuration < 86400
 end
 
 % Truncate data to most recent
-lightReading = LRCtruncateReading(lightReading,LRCparam.readingDuration);
-activityReading = LRCtruncateReading(activityReading,LRCparam.readingDuration);
+lightReading = LRCtruncate_reading(lightReading,LRCparam.readingDuration);
+activityReading = LRCtruncate_reading(activityReading,LRCparam.readingDuration);
 
 % Calculate target phase
 targetPhase = bedWakeTimes2TargetPhase(bedTime,riseTime);
