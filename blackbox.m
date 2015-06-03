@@ -21,8 +21,11 @@ function [treatment,pacemaker,distanceToGoal] = blackbox(runTimeUTC,runTimeOffse
 %   References:
 %     reference goes here
 
-% Import globals
-global LRCparam
+% Get parameters if not already in memory
+persistent LRCparam
+if isempty(LRCparam)
+    LRCparam = LRCconfig;
+end
 
 % Initialize outputs
 treatment = struct(     ...

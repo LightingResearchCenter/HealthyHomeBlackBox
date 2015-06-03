@@ -2,9 +2,6 @@ function OutputStruct = wrapper(InputStruct)
 %WRAPPER Summary of this function goes here
 %   Detailed explanation goes here
 
-% Set global variables
-LRCconfig;
-
 % Assign input
 runTimeUTC              = InputStruct.runTimeUTC;
 runTimeOffset           = InputStruct.runTimeOffset;
