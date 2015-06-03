@@ -1,4 +1,4 @@
-function [scheduleStruct] = createlightschedule(t0,x0,xc0,increment,targetReferencePhaseTime,lightLevel,nDaysPlan,LRCparam)
+function [scheduleStruct] = createlightschedule(t0,x0,xc0,increment,targetReferencePhaseTime,lightLevel,nDaysPlan)
 % CREATELIGHTSCHEDULE creates a schedule of light treatment times based on
 % the current state of the pacemaker and a target phase.
 %
@@ -31,11 +31,11 @@ for iIteration = 1:nIterations
     xcTarget = sin(2*pi*(t1/(24*3600) - targetReferencePhaseTime/(24*3600)));
     
     % Simulate increment of time by running the model with no light
-    [tfDark,xfDark,xcfDark] = rk4stepperSec(x0,xc0,0,t1,t2,nsteps,LRCparam);
+    [tfDark,xfDark,xcfDark] = rk4stepperSec(x0,xc0,0,t1,t2,nsteps);
     
     % Simulate increment of time by running the model with light at the
     % prescribed light level
-    [tfLight,xfLight,xcfLight] = rk4stepperSec(x0,xc0,lightLevel,t1,t2,nsteps,LRCparam);
+    [tfLight,xfLight,xcfLight] = rk4stepperSec(x0,xc0,lightLevel,t1,t2,nsteps);
     
     % Create phasor angles
     targetAngle = mod(atan2(xcTarget, xTarget)+pi, 2*pi); %Angle at target point

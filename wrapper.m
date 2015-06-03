@@ -2,6 +2,8 @@ function OutputStruct = wrapper(InputStruct)
 %WRAPPER Summary of this function goes here
 %   Detailed explanation goes here
 
+addpath('defines');
+
 % Assign input
 runTimeUTC              = InputStruct.runTimeUTC;
 runTimeOffset           = InputStruct.runTimeOffset;

@@ -1,4 +1,4 @@
-function [tf,xf,xcf] = rk4stepperSec(x0,xc0,lightDrive,ti,tf,nsteps,LRCparam)
+function [tf,xf,xcf] = rk4stepperSec(x0,xc0,lightDrive,ti,tf,nsteps)
 % RK4STEPPERSEC is an ODE solver used to determine state variable values
 % of the pacemaker model at the desired point in time
 
@@ -50,8 +50,8 @@ xcf = xc0;
 
         function [xprime,xcprime] = xprimeSec(x,xc)
             % Model
-            xprime  = pi/43200*(LRCparam.mu*(x/3 + 4/3*x^3 - 256/105*x^7) + xc + Bdrive);
-            xcprime = pi/43200*(LRCparam.q*Bdrive*xc - (24/(0.99729*LRCparam.tau))^2*x + LRCparam.k*Bdrive*x);
+            xprime  = pi/43200*(LRCmu*(x/3 + 4/3*x^3 - 256/105*x^7) + xc + Bdrive);
+            xcprime = pi/43200*(LRCq*Bdrive*xc - (24/(0.99729*LRCtau))^2*x + LRCk*Bdrive*x);
         end
     end
 
