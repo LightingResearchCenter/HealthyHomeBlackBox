@@ -54,20 +54,9 @@ if lightDuration < 86400 || activityDuration < 86400
     return
 end
 
-% Truncate data to 10 most recent days
-tenDays = 86400*10;
-if lightDuration > tenDays
-    idx = lightReading.timeUTC >= (lightReading.timeUTC(end) - tenDays);
-    lightReading.timeUTC = lightReading.timeUTC(idx);
-    lightReading.cs = lightReading.cs(idx);
-    lightReading.timeOffset = lightReading.timeOffset(idx);
-end
-if activityDuration > tenDays
-    idx = activityReading.timeUTC >= (activityReading.timeUTC(end) - tenDays);
-    activityReading.timeUTC = activityReading.timeUTC(idx);
-    activityReading.activityIndex = activityReading.activityIndex(idx);
-    activityReading.timeOffset = activityReading.timeOffset(idx);
-end
+% Truncate data to most recent
+lightReading = LRCtruncateReading(lightReading,LRCparam.readingDuration);
+activityReading = LRCtruncateReading(activityReading,LRCparam.readingDuration);
 
 % Calculate target phase
 targetPhase = bedWakeTimes2TargetPhase(bedTime,riseTime);
