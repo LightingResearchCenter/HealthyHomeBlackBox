@@ -122,7 +122,7 @@ end
 % greater than phaseDiffMax then reset model to activity acrophase
 if abs(phaseDiffState) > phaseDiffMax
     idx = find(activityReading.timeUTC > pacemaker.tn(end),1,'first'); % first activity reading recorded since last run
-    startTimeNewDataRel = mod(activityReading.timeUTC(idx) + activityReading.timeOffset,86400);
+    startTimeNewDataRel = mod(activityReading.timeUTC(idx) + activityReading.timeOffset(idx),86400);
     [t0LocalRel,x0,xc0] = refPhaseTime2StateAtTime(acrophase,startTimeNewDataRel,'activityAcrophase');
     %t0 = t0LocalRel + 86400*floor(time(1)/86400) - activityReadingStruct.timeOffset; % convert back to absolute UTC Unix time
     [tnLocalRel,xn,xcn] = pacemakerModelRun(t0LocalRel,x0,xc0,lightSampleIncrement,CS);
