@@ -23,14 +23,7 @@ CS = lightReading.cs;
 timeAI = unix2datenum(activityReading.timeUTC) + activityReading.timeOffset/24;
 AI = activityReading.activityIndex;
 
-if ~isempty(pacemaker)
-    tn = pacemaker.tn(end);
-    xn = pacemaker.xn(end);
-    xcn = pacemaker.xcn(end);
-    xArray = pacemaker.xn;
-    xcArray = pacemaker.xcn;
-%     [~,xAcrophase,xcAcrophase] = refPhaseTime2StateAtTime(activityAcrophase,mod(tn,86400)+activityReading.timeOffset,'activityAcrophase');
-else
+if isempty(pacemaker.tn)
     tn = 0;
     xn = 0;
     xcn = 0;
@@ -38,6 +31,21 @@ else
     xcArray = 0;
 %     xAcrophase = 0;
 %     xcAcrophase = 0;
+elseif isnan(pacemaker.tn(end))
+    tn = 0;
+    xn = 0;
+    xcn = 0;
+    xArray = 0;
+    xcArray = 0;
+%     xAcrophase = 0;
+%     xcAcrophase = 0;
+else
+    tn = pacemaker.tn(end);
+    xn = pacemaker.xn(end);
+    xcn = pacemaker.xcn(end);
+    xArray = pacemaker.xn;
+    xcArray = pacemaker.xcn;
+%     [~,xAcrophase,xcAcrophase] = refPhaseTime2StateAtTime(activityAcrophase,mod(tn,86400)+activityReading.timeOffset,'activityAcrophase');
 end
 
 xNeedle = [0,-cos(distanceToGoal/86400*pi+pi/2)];
