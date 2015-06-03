@@ -63,18 +63,20 @@ if lightDuration > tenDays
     idx = lightReading.timeUTC >= (lightReading.timeUTC(end) - tenDays);
     lightReading.timeUTC = lightReading.timeUTC(idx);
     lightReading.cs = lightReading.cs(idx);
+    lightReading.timeOffset = lightReading.timeOffset(idx);
 end
 if activityDuration > tenDays
     idx = activityReading.timeUTC >= (activityReading.timeUTC(end) - tenDays);
     activityReading.timeUTC = activityReading.timeUTC(idx);
     activityReading.activityIndex = activityReading.activityIndex(idx);
+    activityReading.timeOffset = activityReading.timeOffset(idx);
 end
 
 % Calculate target phase
 targetPhase = bedWakeTimes2TargetPhase(bedTime,riseTime);
 
 % Calculate activity acrophase
-time = activityReading.timeUTC + activityReading.timeOffset; % seconds
+time = activityReading.timeUTC + activityReading.timeOffset*60*60; % seconds
 % Fit activity data with cosine function
 [~,~,phi] = n_cosinorFit(time,activityReading.activityIndex,1/86400,1);
 acrophase = -phi/pi*43200; % Time of day, in seconds, when acrophase occurs
