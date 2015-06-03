@@ -55,9 +55,9 @@ if lightDuration < 86400 || activityDuration < 86400
 end
 
 % Truncate data to most recent
-lightReading = LRCtruncate_reading(lightReading,LRCparam.readingDuration);
+lightReading    = LRCtruncate_reading(lightReading,   LRCparam.readingDuration);
 activityReading = LRCtruncate_reading(activityReading,LRCparam.readingDuration);
-lastPacemaker = LRCtruncate_pacemaker(pacemakerArray);
+lastPacemaker   = LRCtruncate_pacemaker(pacemakerArray);
 
 % Calculate target phase
 targetPhase = bedWakeTimes2TargetPhase(bedTime,riseTime);
@@ -65,7 +65,7 @@ targetPhase = bedWakeTimes2TargetPhase(bedTime,riseTime);
 % Calculate activity acrophase
 time = activityReading.timeUTC + activityReading.timeOffset*60*60; % seconds
 % Fit activity data with cosine function
-[~,~,phi] = n_cosinorFit(time,activityReading.activityIndex,1/86400,1);
+[~,~,phi] = LRCcosinorFit(time,activityReading.activityIndex);
 acrophase = -phi/pi*43200; % Time of day, in seconds, when acrophase occurs
 
 if (acrophase < 0)
