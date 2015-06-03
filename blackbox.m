@@ -63,9 +63,9 @@ lastPacemaker   = LRCtruncate_pacemaker(pacemakerArray);
 targetPhase = bedWakeTimes2TargetPhase(bedTime,riseTime);
 
 % Calculate activity acrophase
-time = activityReading.timeUTC + activityReading.timeOffset*60*60; % seconds
+activityTimeLocal = LRCutc2local(activityReading.timeUTC,activityReading.timeOffset);
 % Fit activity data with cosine function
-[~,~,phi] = LRCcosinorFit(time,activityReading.activityIndex);
+[~,~,phi] = LRCcosinorFit(activityTimeLocal,activityReading.activityIndex);
 acrophase = -phi/pi*43200; % Time of day, in seconds, when acrophase occurs
 
 if (acrophase < 0)
@@ -74,15 +74,17 @@ end
 
 % Check if the pacemakerStruct has previous values
 if isempty(lastPacemaker.tn) || isnan(lastPacemaker.tn)
-    [t0LocalRel,x0,xc0] = refPhaseTime2StateAtTime(acrophase,mod(time(1),86400),'activityAcrophase');
-    t0 = t0LocalRel + 86400*floor(time(1)/86400) - activityReading.timeOffset(1); % convert back to absolute UTC Unix time
-    %phaseDiffState = 0; % Initialize value
+    [t0LocalRel,x0,xc0] = refPhaseTime2StateAtTime(acrophase,mod(activityTimeLocal(1),86400),'activityAcrophase');
+    % convert back to absolute UTC Unix time
+    t0Local = t0LocalRel + 86400*floor(activityTimeLocal(1)/86400);
+    t0 = LRClocal2utc(t0Local,activityReading.timeOffset(1));
     CS = lightReading.cs;
 else
     t0  = lastPacemaker.tn;
     x0  = lastPacemaker.xn;
     xc0	= lastPacemaker.xcn;
-    t0LocalRel = mod(mod(t0,86400) + activityReading.timeOffset(1),86400);
+%     t0LocalRel = mod(mod(t0,86400) + activityReading.timeOffset(1),86400);
+    t0LocalRel = mod(LRCutc2local(t0,activityReading.timeOffset(1)),86400);
     idx = lightReading.timeUTC > lastPacemaker.tn; % light readings recorded since last run
     CS = lightReading.cs(idx);
 end
