@@ -22,10 +22,10 @@ function [treatment,pacemaker,distanceToGoal] = blackbox(runTimeUTC,runTimeOffse
 %     reference goes here
 
 % Get parameters if not already in memory
-persistent LRCparam
-if isempty(LRCparam)
+% persistent LRCparam
+% if isempty(LRCparam)
     LRCparam = LRCconfig;
-end
+% end
 
 % Initialize outputs
 treatment = struct(     ...
@@ -96,7 +96,7 @@ end
 % Advance pacemaker model solution to end of light and activity data
 lightSampleIncrement = (lightReading.timeUTC(end) - lightReading.timeUTC(1))/(length(lightReading.timeUTC)-1);
 % lightSampleIncrement = mode(round(diff(lightReadingObj.timeUTC))); % alternate method
-[tnLocalRel,xn,xcn] = pacemakerModelRun(t0LocalRel,x0,xc0,lightSampleIncrement,CS);
+[tnLocalRel,xn,xcn] = pacemakerModelRun(t0LocalRel,x0,xc0,lightSampleIncrement,CS,LRCparam);
 
 % Calculate pacemaker state from activity acrophase
 [~,xAcrophase,xcAcrophase] = refPhaseTime2StateAtTime(acrophase,mod(tnLocalRel,86400),'activityAcrophase');
@@ -112,7 +112,7 @@ if abs(phaseDiff) > LRCparam.phaseDiffMax
     startTimeNewDataRel = LRCabs2relTime(startTimeNewDataLocal);
     [t0LocalRel,x0,xc0] = refPhaseTime2StateAtTime(acrophase,startTimeNewDataRel,'activityAcrophase');
     %t0 = t0LocalRel + 86400*floor(time(1)/86400) - activityReadingStruct.timeOffset; % convert back to absolute UTC Unix time
-    [tnLocalRel,xn,xcn] = pacemakerModelRun(t0LocalRel,x0,xc0,lightSampleIncrement,CS);
+    [tnLocalRel,xn,xcn] = pacemakerModelRun(t0LocalRel,x0,xc0,lightSampleIncrement,CS,LRCparam);
     pacemakerPhase = atan2(xcn,xn)*43200/pi;
 end
 
@@ -127,7 +127,7 @@ distanceToGoal = LRCdistanceToGoal(currentRefPhaseTime,targetPhase);
 increment = 3600; % seconds
 lightLevel = 0.4; % CS
 nDaysPlan = 2; % Days
-treatment = createlightschedule(tn,xn,xcn,increment,targetPhase,lightLevel,nDaysPlan);
+treatment = createlightschedule(tn,xn,xcn,increment,targetPhase,lightLevel,nDaysPlan,LRCparam);
 
 % Assign values to output
 pacemaker.x0  = x0;
