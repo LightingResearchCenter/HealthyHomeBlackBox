@@ -115,7 +115,6 @@ if abs(phaseDiffState) > LRCparam.phaseDiffMax
     %t0 = t0LocalRel + 86400*floor(time(1)/86400) - activityReadingStruct.timeOffset; % convert back to absolute UTC Unix time
     [tnLocalRel,xn,xcn] = pacemakerModelRun(t0LocalRel,x0,xc0,lightSampleIncrement,CS);
     pacemakerPhase = atan2(xcn,xn)*43200/pi;
-    display('RESET')
 end
 
 % Place state variables in pacemakerStruct structure
@@ -132,9 +131,6 @@ if distanceToGoal < -12*60*60
 elseif distanceToGoal >= 12*60*60
     distanceToGoal = distanceToGoal - 24*60*60;
 end
-
-disp(['targetPhase = ',num2str(targetPhase/3600)]);
-disp(['pacemakerPhase = ',num2str(currentRefPhaseTime/3600)]);
 
 % Calculate light treatment schedule
 increment = 3600; % seconds
