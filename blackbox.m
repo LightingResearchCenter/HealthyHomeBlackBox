@@ -115,13 +115,8 @@ end
 tn = t0 + (tnLocalRel-t0LocalRel); % convert to absoulute Unix time (seconds since Jan 1, 1970)
 
 currentRefPhaseTime = stateAtTime2RefPhaseTime(tnLocalRel,xAcrophase,xcAcrophase);
-% distanceToGoal = mod(targetPhase - currentRefPhaseTime,86400); % seconds
-distanceToGoal = mod(currentRefPhaseTime,86400) - mod(targetPhase,86400); % seconds
-if distanceToGoal < -12*60*60
-    distanceToGoal = distanceToGoal + 24*60*60;
-elseif distanceToGoal >= 12*60*60
-    distanceToGoal = distanceToGoal - 24*60*60;
-end
+% Calculate distance to goal phase from current phase
+distanceToGoal = LRCdistanceToGoal(currentRefPhaseTime,targetPhase);
 
 % Calculate light treatment schedule
 increment = 3600; % seconds
