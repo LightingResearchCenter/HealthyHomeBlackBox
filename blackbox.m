@@ -80,7 +80,6 @@ else
     t0  = lastPacemaker.tn;
     x0  = lastPacemaker.xn;
     xc0	= lastPacemaker.xcn;
-%     t0LocalRel = mod(mod(t0,86400) + activityReading.timeOffset(1),86400);
     t0Local = LRCutc2local(t0,activityReading.timeOffset(1));
     t0LocalRel = LRCabs2relTime(t0Local);
     idx = lightReading.timeUTC > lastPacemaker.tn; % light readings recorded since last run
@@ -105,9 +104,7 @@ if abs(phaseDiff) > LRCphaseDiffMax
     startTimeNewDataLocal = LRCutc2local(activityReading.timeUTC(idx),activityReading.timeOffset(idx));
     startTimeNewDataRel = LRCabs2relTime(startTimeNewDataLocal);
     [t0LocalRel,x0,xc0] = refPhaseTime2StateAtTime(acrophase,startTimeNewDataRel,'activityAcrophase');
-    %t0 = t0LocalRel + 86400*floor(time(1)/86400) - activityReadingStruct.timeOffset; % convert back to absolute UTC Unix time
     [tnLocalRel,xn,xcn] = pacemakerModelRun(t0LocalRel,x0,xc0,lightSampleIncrement,CS);
-    pacemakerPhase = atan2(xcn,xn)*43200/pi;
 end
 
 % Place state variables in pacemakerStruct structure

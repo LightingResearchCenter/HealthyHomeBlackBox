@@ -24,7 +24,7 @@ xf = x0;
 xcf = xc0;
 
     function [xout,xcout] = rk4Sec(x0,xc0)
-        % RK4SEC calculates the derivatives of the pacemaker model at each step
+    % RK4SEC calculates the derivatives of the pacemaker model at each step
         
         % Calculate derivatives
         [xprime1,xcprime1] = xprimeSec(x0,xc0);
@@ -49,6 +49,7 @@ xcf = xc0;
         xcout = xc0 + hInterval/6*(xcprime1 + xcprime4 + xcdym);
 
         function [xprime,xcprime] = xprimeSec(x,xc)
+        % XPRIMESEC
             % Model
             xprime  = pi/43200*(LRCmu*(x/3 + 4/3*x^3 - 256/105*x^7) + xc + Bdrive);
             xcprime = pi/43200*(LRCq*Bdrive*xc - (24/(0.99729*LRCtau))^2*x + LRCk*Bdrive*x);
