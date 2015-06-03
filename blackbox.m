@@ -84,7 +84,8 @@ else
     x0  = lastPacemaker.xn;
     xc0	= lastPacemaker.xcn;
 %     t0LocalRel = mod(mod(t0,86400) + activityReading.timeOffset(1),86400);
-    t0LocalRel = mod(LRCutc2local(t0,activityReading.timeOffset(1)),86400);
+    t0Local = LRCutc2local(t0,activityReading.timeOffset(1));
+    t0LocalRel = LRCabs2relTime(t0Local);
     idx = lightReading.timeUTC > lastPacemaker.tn; % light readings recorded since last run
     CS = lightReading.cs(idx);
 end
@@ -104,7 +105,8 @@ phaseDiff = LRCphaseDifference(xcn,xn,xcAcrophase,xAcrophase);
 % greater than phaseDiffMax then reset model to activity acrophase
 if abs(phaseDiff) > LRCparam.phaseDiffMax
     idx = find(activityReading.timeUTC > lastPacemaker.tn,1,'first'); % first activity reading recorded since last run
-    startTimeNewDataRel = mod(activityReading.timeUTC(idx) + activityReading.timeOffset(idx),86400);
+    startTimeNewDataLocal = LRCutc2local(activityReading.timeUTC(idx),activityReading.timeOffset(idx));
+    startTimeNewDataRel = LRCabs2relTime(startTimeNewDataLocal);
     [t0LocalRel,x0,xc0] = refPhaseTime2StateAtTime(acrophase,startTimeNewDataRel,'activityAcrophase');
     %t0 = t0LocalRel + 86400*floor(time(1)/86400) - activityReadingStruct.timeOffset; % convert back to absolute UTC Unix time
     [tnLocalRel,xn,xcn] = pacemakerModelRun(t0LocalRel,x0,xc0,lightSampleIncrement,CS);
