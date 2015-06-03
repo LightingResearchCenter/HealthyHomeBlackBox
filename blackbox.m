@@ -1,4 +1,4 @@
-function [treatment,newPacemaker,distanceToGoal] = blackbox(runTimeUTC,runTimeOffset,bedTime,riseTime,lightReading,activityReading,pacemaker)
+function [treatment,pacemaker,distanceToGoal] = blackbox(runTimeUTC,runTimeOffset,bedTime,riseTime,lightReading,activityReading,pacemakerArray)
 %BLACKBOX Create light treatment schedule and measure progress toward goal.
 %
 %   [SCHEDULEOBJ,PACEMAKEROBJ,DISTANCETOGOAL] = BLACKBOX(GOALOBJ,
@@ -24,12 +24,12 @@ function [treatment,newPacemaker,distanceToGoal] = blackbox(runTimeUTC,runTimeOf
 % Import globals
 global LRCparam
 
-% Initialize empty outputs
+% Initialize outputs
 treatment = struct(     ...
     'startTimeUTC', [], ...
     'durationMins', []	...
     );
-newPacemaker = struct(      ...
+pacemaker = struct(      ...
     'runTimeUTC',       runTimeUTC,	...
     'runTimeOffset',	runTimeOffset,	...
     'version',          LRCparam.version,	...
@@ -57,6 +57,7 @@ end
 % Truncate data to most recent
 lightReading = LRCtruncate_reading(lightReading,LRCparam.readingDuration);
 activityReading = LRCtruncate_reading(activityReading,LRCparam.readingDuration);
+lastPacemaker = LRCtruncate_pacemaker(pacemakerArray);
 
 % Calculate target phase
 targetPhase = bedWakeTimes2TargetPhase(bedTime,riseTime);
@@ -72,17 +73,17 @@ if (acrophase < 0)
 end
 
 % Check if the pacemakerStruct has previous values
-if isempty(pacemaker.tn) || isnan(pacemaker.tn(end))
+if isempty(lastPacemaker.tn) || isnan(lastPacemaker.tn)
     [t0LocalRel,x0,xc0] = refPhaseTime2StateAtTime(acrophase,mod(time(1),86400),'activityAcrophase');
     t0 = t0LocalRel + 86400*floor(time(1)/86400) - activityReading.timeOffset(1); % convert back to absolute UTC Unix time
     %phaseDiffState = 0; % Initialize value
     CS = lightReading.cs;
 else
-    t0  = pacemaker.tn(end);
-    x0  = pacemaker.xn(end);
-    xc0	= pacemaker.xcn(end);
+    t0  = lastPacemaker.tn;
+    x0  = lastPacemaker.xn;
+    xc0	= lastPacemaker.xcn;
     t0LocalRel = mod(mod(t0,86400) + activityReading.timeOffset(1),86400);
-    idx = lightReading.timeUTC > pacemaker.tn(end); % light readings recorded since last run
+    idx = lightReading.timeUTC > lastPacemaker.tn; % light readings recorded since last run
     CS = lightReading.cs(idx);
 end
 
@@ -109,7 +110,7 @@ end
 % If phase difference between activity acrophase and the pacemaker model is
 % greater than phaseDiffMax then reset model to activity acrophase
 if abs(phaseDiffState) > LRCparam.phaseDiffMax
-    idx = find(activityReading.timeUTC > pacemaker.tn(end),1,'first'); % first activity reading recorded since last run
+    idx = find(activityReading.timeUTC > lastPacemaker.tn,1,'first'); % first activity reading recorded since last run
     startTimeNewDataRel = mod(activityReading.timeUTC(idx) + activityReading.timeOffset(idx),86400);
     [t0LocalRel,x0,xc0] = refPhaseTime2StateAtTime(acrophase,startTimeNewDataRel,'activityAcrophase');
     %t0 = t0LocalRel + 86400*floor(time(1)/86400) - activityReadingStruct.timeOffset; % convert back to absolute UTC Unix time
@@ -119,9 +120,6 @@ end
 
 % Place state variables in pacemakerStruct structure
 tn = t0 + (tnLocalRel-t0LocalRel); % convert to absoulute Unix time (seconds since Jan 1, 1970)
-pacemaker.tn = tn;
-pacemaker.xn = xn;
-pacemaker.xcn = xcn;
 
 currentRefPhaseTime = stateAtTime2RefPhaseTime(tnLocalRel,xAcrophase,xcAcrophase);
 % distanceToGoal = mod(targetPhase - currentRefPhaseTime,86400); % seconds
@@ -139,11 +137,11 @@ nDaysPlan = 2; % Days
 treatment = createlightschedule(tn,xn,xcn,increment,targetPhase,lightLevel,nDaysPlan);
 
 % Assign values to output
-newPacemaker.x0  = x0;
-newPacemaker.xc0 = xc0;
-newPacemaker.t0  = t0;
-newPacemaker.xn  = xn;
-newPacemaker.xcn = xcn;
-newPacemaker.tn  = tn;
+pacemaker.x0  = x0;
+pacemaker.xc0 = xc0;
+pacemaker.t0  = t0;
+pacemaker.xn  = xn;
+pacemaker.xcn = xcn;
+pacemaker.tn  = tn;
 
 end
