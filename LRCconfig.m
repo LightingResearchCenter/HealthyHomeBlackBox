@@ -20,7 +20,8 @@ global LRCparam
 
 LRCparam = struct(              ...
     'model',        '0.1.0',    ...	% Model version
-    'version',	'appVersionGoesHere?'   ...
+    'version',      'appVersionGoesHere?',   ...
+    'phaseDiffMax',	5*60*60 ... % 5 hours in seconds
     );
 
 end

@@ -24,9 +24,6 @@ function [treatment,newPacemaker,distanceToGoal] = blackbox(runTimeUTC,runTimeOf
 % Import globals
 global LRCparam
 
-% Parameter constants
-phaseDiffMax = 5*3600; % seconds
-
 % Initialize empty outputs
 treatment = struct(     ...
     'startTimeUTC', [], ...
@@ -122,7 +119,7 @@ end
 
 % If phase difference between activity acrophase and the pacemaker model is
 % greater than phaseDiffMax then reset model to activity acrophase
-if abs(phaseDiffState) > phaseDiffMax
+if abs(phaseDiffState) > LRCparam.phaseDiffMax
     idx = find(activityReading.timeUTC > pacemaker.tn(end),1,'first'); % first activity reading recorded since last run
     startTimeNewDataRel = mod(activityReading.timeUTC(idx) + activityReading.timeOffset(idx),86400);
     [t0LocalRel,x0,xc0] = refPhaseTime2StateAtTime(acrophase,startTimeNewDataRel,'activityAcrophase');
