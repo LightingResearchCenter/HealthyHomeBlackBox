@@ -16,27 +16,25 @@ function [tn,xn,xcn] = pacemakerModelRun(t0,x0,xc0,increment,lightArray)
 %       xcf: Pacemaker state variable #2 (y-axix) final value
 %
 
-% Create local variables
-nsteps = 30;
-
-%
+% Number of readings
 nReadings = numel(lightArray);
 
 % Initial loop values
 t1 = t0:increment:increment*(nReadings-2)+t0;
 t2 = t1 + increment;
+x = x0;
+xc = xc0;
 
 % Loop
 for iReading = 1:nReadings-1
     % Set light drive
     lightDrive = (lightArray(iReading) + lightArray(iReading + 1))/2;
     
-    [tn,xn,xcn] = rk4stepperSec(x0,xc0,lightDrive,t1(iReading),t2(iReading),nsteps);
-    
-    % update loop variables
-    x0 = xn;
-    xc0 = xcn;
+    [tn,x,xc] = rk4stepperSec(x,xc,lightDrive,t1(iReading),t2(iReading));
 end
+
+xn = x;
+xcn = xc;
 
 end
 

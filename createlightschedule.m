@@ -31,11 +31,11 @@ for iIteration = 1:nIterations
     xcTarget = sin(2*pi*(t1/(24*3600) - targetReferencePhaseTime/(24*3600)));
     
     % Simulate increment of time by running the model with no light
-    [tfDark,xfDark,xcfDark] = rk4stepperSec(x0,xc0,0,t1,t2,nsteps);
+    [tfDark,xfDark,xcfDark] = rk4stepperSec(x0,xc0,0,t1,t2);
     
     % Simulate increment of time by running the model with light at the
     % prescribed light level
-    [tfLight,xfLight,xcfLight] = rk4stepperSec(x0,xc0,LRCtreatmentCS,t1,t2,nsteps);
+    [tfLight,xfLight,xcfLight] = rk4stepperSec(x0,xc0,LRCtreatmentCS,t1,t2);
     
     % Create phasor angles
     targetAngle = mod(atan2(xcTarget, xTarget)+pi, 2*pi); %Angle at target point
