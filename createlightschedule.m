@@ -20,7 +20,6 @@ function [scheduleStruct] = createlightschedule(t0,x0,xc0,targetReferencePhaseTi
 % Create loop variables
 nIterations = round(LRCtreatmentPlanLength*24*3600/LRCtreatmentInc);
 lightScheduleArray = zeros(nIterations,1);
-nsteps = 30;
 t1 = t0;
 t2 = t1 + LRCtreatmentInc;
 
@@ -31,11 +30,11 @@ for iIteration = 1:nIterations
     xcTarget = sin(2*pi*(t1/(24*3600) - targetReferencePhaseTime/(24*3600)));
     
     % Simulate increment of time by running the model with no light
-    [tfDark,xfDark,xcfDark] = rk4stepperSec(x0,xc0,0,t1,t2);
+    [xfDark,xcfDark] = rk4stepperSec(x0,xc0,0,t1,t2);
     
     % Simulate increment of time by running the model with light at the
     % prescribed light level
-    [tfLight,xfLight,xcfLight] = rk4stepperSec(x0,xc0,LRCtreatmentCS,t1,t2);
+    [xfLight,xcfLight] = rk4stepperSec(x0,xc0,LRCtreatmentCS,t1,t2);
     
     % Create phasor angles
     targetAngle = mod(atan2(xcTarget, xTarget)+pi, 2*pi); %Angle at target point

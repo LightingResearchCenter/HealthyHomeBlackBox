@@ -30,9 +30,10 @@ for iReading = 1:nReadings-1
     % Set light drive
     lightDrive = (lightArray(iReading) + lightArray(iReading + 1))/2;
     
-    [tn,x,xc] = rk4stepperSec(x,xc,lightDrive,t1(iReading),t2(iReading));
+    [x,xc] = rk4stepperSec(x,xc,lightDrive,t1(iReading),t2(iReading));
 end
 
+tn = t2(end);
 xn = x;
 xcn = xc;
 

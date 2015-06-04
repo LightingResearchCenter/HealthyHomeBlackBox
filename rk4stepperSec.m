@@ -1,4 +1,4 @@
-function [tf,xf,xcf] = rk4stepperSec(x0,xc0,lightDrive,ti,tf)
+function [xf,xcf] = rk4stepperSec(x0,xc0,lightDrive,ti,tf)
 % RK4STEPPERSEC is an ODE solver used to determine state variable values
 % of the pacemaker model at the desired point in time
 
@@ -19,7 +19,6 @@ for iStep = 1:LRCrk4StepSize
 end
 
 % Create return values
-tf = t;
 xf = x0;
 xcf = xc0;
 
