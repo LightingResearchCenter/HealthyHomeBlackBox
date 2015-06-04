@@ -1,7 +1,14 @@
 function OutputStruct = wrapper(InputStruct)
-%WRAPPER Summary of this function goes here
-%   Detailed explanation goes here
+%WRAPPER wrapper function for BLACKBOX
+%   Parses inputs and outputs. Reads input data from file.
+%
+%   See also BLACKBOX.
 
+%   Author(s): G. Jones,    2015-06-01
+%   Copyright 2015 Rensselaer Polytechnic Institute. All rights reserved.
+
+% Enable access to constants
+% REPLACE with actual #define in C code
 addpath('defines');
 
 % Assign input

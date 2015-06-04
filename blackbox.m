@@ -1,25 +1,26 @@
-function [treatment,pacemaker,distanceToGoal] = blackbox(runTimeUTC,runTimeOffset,bedTime,riseTime,lightReading,activityReading,pacemakerArray)
+function [treatment,pacemaker,distanceToGoal] = blackbox(runTimeUTC,runTimeOffset,bedTime,riseTime,lightReading,activityReading,pacemakerArray) %#codegen
 %BLACKBOX Create light treatment schedule and measure progress toward goal.
 %
-%   [SCHEDULEOBJ,PACEMAKEROBJ,DISTANCETOGOAL] = BLACKBOX(GOALOBJ,
-%   LIGHTREADINGOBJ,ACTIVITYREADINGOBJ) On the first run a pacemakerObj has
-%   not yet been created so it is omitted from the input. GOALOBJ is an
-%   object of class goal. LIGHTREADINGOBJ is an object of class
-%   lightReading. ACTIVITYREADINGOBJ is an object of class activityReading.
+%   Inputs:
+%   RUNTIMEUTC      time wrapper was called in UTC UNIX format
+%   RUNTIMEOFFSET	offset of local time from UTC in hours at runtime
+%   BEDTIME         time day in hours in local time
+%   RISETIME        time day in hours in local time
+%   LIGHTREADING	lightReading struct
+%   ACTIVITYREADING	activityReading struct
+%   PACEMAKERARRAY	pacemaker struct, with all entries
 %
-%   [scheduleObj,pacemakerObj,distanceToGoal] = BLACKBOX(...,
-%   prevPacemakerObj) On subsequent calls to this function provide the 
-%   previous pacemakerObj as an input.
+%   Outputs:
+%   TREATMENT       treatment struct
+%   PACEMAKER       pacemaker struct, single new entry
+%   DISTANCETOGOAL	hours between current phase angle and target
 %
-%   See also INCLUDES.GOAL, INCLUDES.LIGHTREADING, INCLUDES.ACTIVITYREADING,
-%   INCLUDES.PACEMAKEROBJ, INCLUDES.SCHEDULEOBJ.
+%   See also LRCREAD_ACTIVITYREADING, LRCREAD_LIGHTREADING,
+%   LRCREAD_PACEMAKER.
 
 %   Author(s): G. Jones,    2015-05-21
 %   	       A. Bierman,  2015-05-26
 %   Copyright 2015 Rensselaer Polytechnic Institute. All rights reserved.
-
-%   References:
-%     reference goes here
 
 % Initialize outputs
 treatment = struct(     ...
@@ -102,8 +103,8 @@ if abs(phaseDiff) > LRCphaseDiffMax
     [tnLocalRel,xn,xcn] = pacemakerModelRun(t0LocalRel,x0,xc0,lightReadingIncrement,CS);
 end
 
-% Place state variables in pacemakerStruct structure
-tn = t0 + (tnLocalRel-t0LocalRel); % convert to absoulute Unix time (seconds since Jan 1, 1970)
+% convert to absoulute Unix time (seconds since Jan 1, 1970)
+tn = t0 + (tnLocalRel-t0LocalRel);
 
 currentRefPhaseTime = stateAtTime2RefPhaseTime(tnLocalRel,xAcrophase,xcAcrophase);
 % Calculate distance to goal phase from current phase
