@@ -95,7 +95,7 @@ phaseDiff = LRCphaseDifference(xcn,xn,xcAcrophase,xAcrophase);
 % If phase difference between activity acrophase and the pacemaker model is
 % greater than phaseDiffMax then reset model to activity acrophase
 if abs(phaseDiff) > LRCphaseDiffMax
-    idx = find(activityReading.timeUTC > lastPacemaker.tn,1,'first'); % first activity reading recorded since last run
+    idx = find(activityReading.timeUTC >= lastPacemaker.tn,1,'first'); % first activity reading recorded since last run
     startTimeNewDataLocal = LRCutc2local(activityReading.timeUTC(idx),activityReading.timeOffset(idx));
     startTimeNewDataRel = LRCabs2relTime(startTimeNewDataLocal);
     [t0LocalRel,x0,xc0] = refPhaseTime2StateAtTime(acrophaseTime,startTimeNewDataRel,'activityAcrophase');
