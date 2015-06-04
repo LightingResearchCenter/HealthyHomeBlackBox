@@ -1,4 +1,4 @@
-function [scheduleStruct] = createlightschedule(t0,x0,xc0,increment,targetReferencePhaseTime,lightLevel,nDaysPlan)
+function [scheduleStruct] = createlightschedule(t0,x0,xc0,targetReferencePhaseTime)
 % CREATELIGHTSCHEDULE creates a schedule of light treatment times based on
 % the current state of the pacemaker and a target phase.
 %
@@ -18,11 +18,11 @@ function [scheduleStruct] = createlightschedule(t0,x0,xc0,increment,targetRefere
 %       the treatmentStartTimes
 
 % Create loop variables
-nIterations = round(nDaysPlan*24*3600/increment);
+nIterations = round(LRCtreatmentPlanLength*24*3600/LRCtreatmentInc);
 lightScheduleArray = zeros(nIterations,1);
 nsteps = 30;
 t1 = t0;
-t2 = t1 + increment;
+t2 = t1 + LRCtreatmentInc;
 
 % Loop
 for iIteration = 1:nIterations
@@ -35,7 +35,7 @@ for iIteration = 1:nIterations
     
     % Simulate increment of time by running the model with light at the
     % prescribed light level
-    [tfLight,xfLight,xcfLight] = rk4stepperSec(x0,xc0,lightLevel,t1,t2,nsteps);
+    [tfLight,xfLight,xcfLight] = rk4stepperSec(x0,xc0,LRCtreatmentCS,t1,t2,nsteps);
     
     % Create phasor angles
     targetAngle = mod(atan2(xcTarget, xTarget)+pi, 2*pi); %Angle at target point
@@ -48,7 +48,7 @@ for iIteration = 1:nIterations
     
     % Choose best plan
     if withLight < withoutLight
-        lightScheduleArray(iIteration) = lightLevel;
+        lightScheduleArray(iIteration) = LRCtreatmentCS;
         x0 = xfLight;
         xc0 = xcfLight;
     else
@@ -59,19 +59,19 @@ for iIteration = 1:nIterations
         
     % Update loop variables
     t1 = t2;
-    t2 = t2 + increment;
+    t2 = t2 + LRCtreatmentInc;
     
 end
 
 % Convert lightScheduleArray to treatment start times and durations
-time = ((1:length(lightScheduleArray))-1)*increment + t0;
+time = ((1:length(lightScheduleArray))-1)*LRCtreatmentInc + t0;
 q = find(lightScheduleArray ~= 0);
 qdiff = diff(q);
 startTimes = time(q(find(qdiff>1)+1));
 startTimes = [time(q(1)),startTimes];
 % pad lightScheduleArray with zeros at start and end in order to find
 % treatment durations that start (or end) at first (last) array element.
-durations = increment*(find(diff([0;lightScheduleArray;0]) < 0) - find(diff([0;lightScheduleArray;0]) > 0));
-scheduleStruct.treatmentStartTimes = startTimes;
-scheduleStruct.treatmentDurations = durations;
+durations = LRCtreatmentInc*(find(diff([0;lightScheduleArray;0]) < 0) - find(diff([0;lightScheduleArray;0]) > 0));
+scheduleStruct.startTimeUTC = startTimes;
+scheduleStruct.durationMins = durations;
 

@@ -115,10 +115,7 @@ currentRefPhaseTime = stateAtTime2RefPhaseTime(tnLocalRel,xAcrophase,xcAcrophase
 distanceToGoal = LRCdistanceToGoal(currentRefPhaseTime,targetPhase);
 
 % Calculate light treatment schedule
-increment = 3600; % seconds
-lightLevel = 0.4; % CS
-nDaysPlan = 2; % Days
-treatment = createlightschedule(tn,xn,xcn,increment,targetPhase,lightLevel,nDaysPlan);
+treatment = createlightschedule(tn,xn,xcn,targetPhase);
 
 % Assign values to output
 pacemaker.x0  = x0;
