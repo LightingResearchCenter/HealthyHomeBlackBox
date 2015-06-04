@@ -82,10 +82,9 @@ else
     CS = lightReading.cs(idx);
 end
 
-% Advance pacemaker model solution to end of light and activity data
-lightSampleIncrement = (lightReading.timeUTC(end) - lightReading.timeUTC(1))/(length(lightReading.timeUTC)-1);
-% lightSampleIncrement = mode(round(diff(lightReadingObj.timeUTC))); % alternate method
-[tnLocalRel,xn,xcn] = pacemakerModelRun(t0LocalRel,x0,xc0,lightSampleIncrement,CS);
+% Advance pacemaker model solution to end of light data
+lightReadingIncrement = LRCgetReadingInc(lightReading.timeUTC);
+[tnLocalRel,xn,xcn] = pacemakerModelRun(t0LocalRel,x0,xc0,lightReadingIncrement,CS);
 
 % Calculate pacemaker state from activity acrophase
 [~,xAcrophase,xcAcrophase] = refPhaseTime2StateAtTime(acrophaseTime,mod(tnLocalRel,86400),'activityAcrophase');
@@ -100,7 +99,7 @@ if abs(phaseDiff) > LRCphaseDiffMax
     startTimeNewDataLocal = LRCutc2local(activityReading.timeUTC(idx),activityReading.timeOffset(idx));
     startTimeNewDataRel = LRCabs2relTime(startTimeNewDataLocal);
     [t0LocalRel,x0,xc0] = refPhaseTime2StateAtTime(acrophaseTime,startTimeNewDataRel,'activityAcrophase');
-    [tnLocalRel,xn,xcn] = pacemakerModelRun(t0LocalRel,x0,xc0,lightSampleIncrement,CS);
+    [tnLocalRel,xn,xcn] = pacemakerModelRun(t0LocalRel,x0,xc0,lightReadingIncrement,CS);
 end
 
 % Place state variables in pacemakerStruct structure
