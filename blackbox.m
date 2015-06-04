@@ -62,16 +62,12 @@ targetPhase = bedWakeTimes2TargetPhase(bedTime,riseTime);
 % Calculate activity acrophase
 activityTimeLocal = LRCutc2local(activityReading.timeUTC,activityReading.timeOffset);
 % Fit activity data with cosine function
-[~,~,phi] = LRCcosinorFit(activityTimeLocal,activityReading.activityIndex);
-acrophase = -phi/pi*43200; % Time of day, in seconds, when acrophase occurs
-
-if (acrophase < 0)
-    acrophase = acrophase+86400; % 0 <= acrophase < 86400
-end
+[~,~,acrophaseAngle] = LRCcosinorFit(activityTimeLocal,activityReading.activityIndex);
+acrophaseTime = LRCacrophaseAngle2Time(acrophaseAngle);
 
 % Check if the pacemakerStruct has previous values
 if isempty(lastPacemaker.tn) || isnan(lastPacemaker.tn)
-    [t0LocalRel,x0,xc0] = refPhaseTime2StateAtTime(acrophase,mod(activityTimeLocal(1),86400),'activityAcrophase');
+    [t0LocalRel,x0,xc0] = refPhaseTime2StateAtTime(acrophaseTime,mod(activityTimeLocal(1),86400),'activityAcrophase');
     % convert back to absolute UTC Unix time
     t0Local = t0LocalRel + 86400*floor(activityTimeLocal(1)/86400);
     t0 = LRClocal2utc(t0Local,activityReading.timeOffset(1));
@@ -92,7 +88,7 @@ lightSampleIncrement = (lightReading.timeUTC(end) - lightReading.timeUTC(1))/(le
 [tnLocalRel,xn,xcn] = pacemakerModelRun(t0LocalRel,x0,xc0,lightSampleIncrement,CS);
 
 % Calculate pacemaker state from activity acrophase
-[~,xAcrophase,xcAcrophase] = refPhaseTime2StateAtTime(acrophase,mod(tnLocalRel,86400),'activityAcrophase');
+[~,xAcrophase,xcAcrophase] = refPhaseTime2StateAtTime(acrophaseTime,mod(tnLocalRel,86400),'activityAcrophase');
 
 % Calculate phase difference from pacemaker state variables
 phaseDiff = LRCphaseDifference(xcn,xn,xcAcrophase,xAcrophase);
@@ -103,7 +99,7 @@ if abs(phaseDiff) > LRCphaseDiffMax
     idx = find(activityReading.timeUTC > lastPacemaker.tn,1,'first'); % first activity reading recorded since last run
     startTimeNewDataLocal = LRCutc2local(activityReading.timeUTC(idx),activityReading.timeOffset(idx));
     startTimeNewDataRel = LRCabs2relTime(startTimeNewDataLocal);
-    [t0LocalRel,x0,xc0] = refPhaseTime2StateAtTime(acrophase,startTimeNewDataRel,'activityAcrophase');
+    [t0LocalRel,x0,xc0] = refPhaseTime2StateAtTime(acrophaseTime,startTimeNewDataRel,'activityAcrophase');
     [tnLocalRel,xn,xcn] = pacemakerModelRun(t0LocalRel,x0,xc0,lightSampleIncrement,CS);
 end
 
