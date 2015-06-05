@@ -72,5 +72,5 @@ startTimes = [time(q(1)),startTimes];
 % treatment durations that start (or end) at first (last) array element.
 durations = LRCtreatmentInc*(find(diff([0;lightScheduleArray;0]) < 0) - find(diff([0;lightScheduleArray;0]) > 0));
 scheduleStruct.startTimeUTC = startTimes;
-scheduleStruct.durationMins = durations;
+scheduleStruct.durationMins = durations/60;
 
