@@ -1,10 +1,12 @@
-function updateFigure(axisHandles,textHandle,filePaths,OutputStruct)
+function updateFigure(axisHandles,textHandle,filePaths,OutputStruct,bedTime,riseTime,workStart,workEnd)
 %UPDATEFIGURE Summary of this function goes here
 %   Detailed explanation goes here
 
-axisHandle1 = axisHandles(1);
-axisHandle2 = axisHandles(2);
-axisHandle3 = axisHandles(3);
+axInput     = axisHandles.axInput;
+axPState	= axisHandles.axPState;
+axSchedule	= axisHandles.axSchedule;
+axActual	= axisHandles.axActual;
+axDTGoal	= axisHandles.axDTGoal;
 
 % Read data from disk
 filePointers = LRCopen(filePaths,'r');
@@ -15,13 +17,14 @@ LRCclose(filePointers);
 
 distanceToGoal = OutputStruct.distanceToGoal;
 
-activityAcrophase = [];
-
-
-timeCS = unix2datenum(lightReading.timeUTC) + lightReading.timeOffset/24;
+timeCS = unix2datenum(LRCutc2local(lightReading.timeUTC,lightReading.timeOffset));
 CS = lightReading.cs;
-timeAI = unix2datenum(activityReading.timeUTC) + activityReading.timeOffset/24;
+timeAI = unix2datenum(LRCutc2local(activityReading.timeUTC,activityReading.timeOffset));
 AI = activityReading.activityIndex;
+
+[timeScene,scene] = LRCtreatment2plot(timeCS(end),OutputStruct.treatment,OutputStruct.pacemaker.runTimeOffset(end));
+
+[timeActualScene,actualScene] = LRCscene2actual(timeScene,scene,bedTime,riseTime,workStart,workEnd);
 
 if isempty(pacemaker.tn)
     tn = 0;
@@ -52,12 +55,15 @@ xNeedle = [0,-cos(distanceToGoal/86400*pi+pi/2)];
 yNeedle = [0,sin(distanceToGoal/86400*pi+pi/2)];
 
 
-set(axisHandle1,'XLim',[max(timeCS)-10, max(timeCS)],'XTick',floor(max(timeCS)-10):ceil(max(timeCS)));
-datetick(axisHandle1,'x','mm/dd','keeplimits','keepticks')
-set(axisHandle2,'YLim',[-1.2,1.2],'XLim',[-1.2,1.2]);
-set(axisHandle2,'DataAspectRatio',[1,1,1]);
-set(axisHandle3,'YLim',[-1.2,1.2],'XLim',[-1.2,1.2]);
-set(axisHandle3,'DataAspectRatio',[1,1,1]);
+set(axInput,'XLim',[max(timeCS)-10, max(timeCS)],'XTick',floor(max(timeCS)-10):ceil(max(timeCS)));
+datetick(axInput,'x','mm/dd','keeplimits','keepticks')
+
+set(axSchedule,'XLim',[timeCS(end),timeCS(end)+2]);
+LRCscheduleXlabels(axSchedule)
+
+set(axActual,'XLim',[timeCS(end),timeCS(end)+2]);
+LRCscheduleXlabels(axActual)
+
 set(textHandle,'String',num2str(distanceToGoal/3600,'%.2f'));
 
 refreshdata(gcf,'caller');

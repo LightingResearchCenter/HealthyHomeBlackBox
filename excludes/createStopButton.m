@@ -1,57 +1,33 @@
-function buttonHandle = createStopButton(figureHandle)
+function buttonHandle = createStopButton(parentHandle)
 %CREATESTOPBUTTON Summary of this function goes here
 %   Detailed explanation goes here
 
-%figureUnits = figureHandle.Units;
-figureUnits = get(figureHandle,'Units');
-%figureHandle.Units = 'pixels';
-set(figureHandle,'Units','pixels');
 
-buttonHandle = uicontrol(figureHandle);
-% buttonHandle.Style              = 'pushbutton';
-% buttonHandle.String             = 'STOP';
-% buttonHandle.Position           = [20 20 100 40];
-% buttonHandle.Callback           = 'runflag=false;';
-% buttonHandle.BackgroundColor	= 'red';
-% buttonHandle.FontSize           = 16;
-% buttonHandle.FontWeight         = 'bold';
-set(buttonHandle,'Style','pushbutton','String','STOP','Position',[20 20 100 40],'Callback','runflag=false;',...
-    'BackgroundColor','red','FontSize',16,'FontWeight','bold');
+parentUnits = get(parentHandle,'Units');
+set(parentHandle,'Units','pixels');
+parentPosition = get(parentHandle,'Position');
+parentWidth = parentPosition(3);
+parentHeight = parentPosition(4);
 
-axisHandle	= gca;
-%axisUnits	= axisHandle.Units;
-axisUnits = get(axisHandle,'Units');
-%buttonUnits = buttonHandle.Units;
-buttonUnits = get(buttonHandle,'Units');
+margin = 5;
+buttonWidth = parentWidth/2 - 3*margin;
+buttonHeight = parentHeight/4 - 5*margin;
+% buttonX = margin;
+% buttonY = margin;
+buttonX = (parentWidth - buttonWidth)/2;
+buttonY = (parentHeight - buttonHeight)/2;
+buttonPosition = [buttonX,buttonY,buttonWidth,buttonHeight];
 
-%axisHandle.Units	= 'pixels';
-%buttonHandle.Units	= 'pixels';
-set(buttonHandle,'Units','pixels');
-set(axisHandle,'Units','pixels');
-
-% Reposition the button
-%figurePosition	= figureHandle.Position;
-%axisPosition	= axisHandle.Position;
-%buttonPosition	= buttonHandle.Position;
-figurePosition = get(figureHandle,'Position');
-axisPosition = get(axisHandle,'Position');
-buttonPosition = get(buttonHandle,'Position');
-
-x = (figurePosition(3) - buttonPosition(3))/2;
-y = (figurePosition(4) - buttonPosition(4))/2;
-% x = axisPosition(1)-450;
-% y = axisPosition(1) - 180;
-buttonPosition(1) = max([x,0]);
-buttonPosition(2) = max([y,0]);
-%buttonHandle.Position = buttonPosition;
+buttonHandle = uicontrol(parentHandle);
+set(buttonHandle,'Style','pushbutton');
+set(buttonHandle,'String','STOP');
 set(buttonHandle,'Position',buttonPosition);
+set(buttonHandle,'Callback','runflag=false;');
+set(buttonHandle,'BackgroundColor','red');
+set(buttonHandle,'FontSize',16);
+set(buttonHandle,'FontWeight','bold');
 
 % Return units to starting value
-%figureHandle.Units	= figureUnits;
-%axisHandle.Units	= axisUnits;
-%buttonHandle.Units  = buttonUnits;
-set(figureHandle,'Units',figureUnits);
-set(axisHandle,'Units',axisUnits);
-set(buttonHandle,'Units',buttonUnits);
+set(parentHandle,'Units',parentUnits);
 end
 

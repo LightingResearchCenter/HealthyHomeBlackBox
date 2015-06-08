@@ -12,6 +12,8 @@ simDuration     = 2*3600;	% Duration of time to simulate in seconds
 samplingInterval= 30;	% Simulated sampling interval in seconds
 bedTime         = 22.5; % hours, 0 <= bedTime < 24
 riseTime        = 6.5;  % hours, 0 <= wakeTime < 24
+workStart       = 8.5;  % hours, 0 <= wakeTime < 24
+workEnd         = 17;   % hours, 0 <= wakeTime < 24
 
 %% Initialize files. Stored in temporary location.
 [filePaths] = LRCinitTempFiles;
@@ -74,7 +76,7 @@ while runflag && counter <= maxLoop
     LRCappend_file(filePointers.pacemaker,OutputStruct.pacemaker);
     
     % Update graphics and UI
-    updateFigure(axisHandles,textHandle,filePaths,OutputStruct);
+    updateFigure(axisHandles,textHandle,filePaths,OutputStruct,bedTime,riseTime,workStart,workEnd);
     pause(pauseDuration);
     
     % Generate simulated light and activity for next loop
