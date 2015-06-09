@@ -3,7 +3,7 @@ function treatmentInc = LRCtreatmentInc
 %   Detailed explanation goes here
 
 % Treatment schedule increment in seconds
-treatmentInc = 3600;
+treatmentInc = 900; % 15 minutes
 
 end
 

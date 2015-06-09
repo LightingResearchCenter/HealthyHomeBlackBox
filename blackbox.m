@@ -110,8 +110,11 @@ currentRefPhaseTime = stateAtTime2RefPhaseTime(tnLocalRel,xAcrophase,xcAcrophase
 % Calculate distance to goal phase from current phase
 distanceToGoal = LRCdistanceToGoal(currentRefPhaseTime,targetPhase);
 
+% Find unavailable times
+unavailability = LRCbed2unavail(bedTime,riseTime,runTimeUTC,runTimeOffset);
+
 % Calculate light treatment schedule
-treatment = createlightschedule(tn,xn,xcn,targetPhase);
+treatment = createlightschedule(tn,xn,xcn,targetPhase,unavailability);
 
 % Assign values to output
 pacemaker.x0  = x0;

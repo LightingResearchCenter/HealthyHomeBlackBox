@@ -48,8 +48,8 @@ InputStruct = struct(                                           ...
 runflag = true;
 counter = 0;
 while runflag && counter <= maxLoop
-    % Get current UTC time and offset from system
-    [runTimeUTC,runTimeOffset] = getTime;
+    % Update simulated runtime
+    runTimeUTC = lightReading.timeUTC(end);
     
     % Open the files for read only
     filePointers = LRCopen(filePaths,'r');
