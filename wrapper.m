@@ -23,12 +23,13 @@ pacemakerPointer        = InputStruct.pacemakerPointer;
 % Perform file IO REPLACE with native C functions
 lightReading	= LRCread_lightReading(lightReadingPointer);
 activityReading	= LRCread_activityReading(activityReadingPointer);
-pacemaker       = LRCread_pacemaker(pacemakerPointer);
+pacemakerArray  = LRCread_pacemaker(pacemakerPointer);
+lastPacemaker   = LRCtruncate_pacemaker(pacemakerArray);
 
 % Call blackbox
 [treatment,pacemaker,distanceToGoal] = blackbox(...
     runTimeUTC,runTimeOffset,bedTime,riseTime,  ...
-    lightReading,activityReading,pacemaker      ...
+    lightReading,activityReading,lastPacemaker      ...
     );
 
 % Assign output
