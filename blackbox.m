@@ -57,6 +57,9 @@ end
 lightReading    = LRCtruncate_lightReading(lightReading,LRCreadingDuration);
 activityReading = LRCtruncate_activityReading(activityReading,LRCreadingDuration);
 
+% Fill in any gaps in CS
+[timeUTC,CS] = LRCgapFill(lightReading.timeUTC,lightReading.cs,LRCsampleInc);
+
 % Calculate target phase
 targetPhase = bedWakeTimes2TargetPhase(bedTime,riseTime);
 
@@ -72,20 +75,19 @@ if isempty(lastPacemaker.tn) || isnan(lastPacemaker.tn)
     % convert back to absolute UTC Unix time
     t0Local = t0LocalRel + 86400*floor(activityTimeLocal(1)/86400);
     t0 = LRClocal2utc(t0Local,activityReading.timeOffset(1));
-    CS = lightReading.cs;
+    CS = CS;
 else
     t0  = lastPacemaker.tn;
     x0  = lastPacemaker.xn;
     xc0	= lastPacemaker.xcn;
     t0Local = LRCutc2local(t0,activityReading.timeOffset(1));
     t0LocalRel = LRCabs2relTime(t0Local);
-    idx = lightReading.timeUTC > lastPacemaker.tn; % light readings recorded since last run
-    CS = lightReading.cs(idx);
+    idx = timeUTC > lastPacemaker.tn; % light readings recorded since last run
+    CS = CS(idx);
 end
 
 % Advance pacemaker model solution to end of light data
-lightReadingIncrement = LRCgetReadingInc(lightReading.timeUTC);
-[tnLocalRel,xn,xcn] = pacemakerModelRun(t0LocalRel,x0,xc0,lightReadingIncrement,CS);
+[tnLocalRel,xn,xcn] = pacemakerModelRun(t0LocalRel,x0,xc0,LRCsampleInc,CS);
 
 % Calculate pacemaker state from activity acrophase
 [~,xAcrophase,xcAcrophase] = refPhaseTime2StateAtTime(acrophaseTime,mod(tnLocalRel,86400),'activityAcrophase');
@@ -100,7 +102,7 @@ if abs(phaseDiff) > LRCphaseDiffMax
     startTimeNewDataLocal = LRCutc2local(activityReading.timeUTC(idx),activityReading.timeOffset(idx));
     startTimeNewDataRel = LRCabs2relTime(startTimeNewDataLocal);
     [t0LocalRel,x0,xc0] = refPhaseTime2StateAtTime(acrophaseTime,startTimeNewDataRel,'activityAcrophase');
-    [tnLocalRel,xn,xcn] = pacemakerModelRun(t0LocalRel,x0,xc0,lightReadingIncrement,CS);
+    [tnLocalRel,xn,xcn] = pacemakerModelRun(t0LocalRel,x0,xc0,LRCsampleInc,CS);
 end
 
 % convert to absoulute Unix time (seconds since Jan 1, 1970)
