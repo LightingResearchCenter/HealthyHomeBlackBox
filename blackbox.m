@@ -58,7 +58,7 @@ lightReading    = LRCtruncate_lightReading(lightReading,LRCreadingDuration);
 activityReading = LRCtruncate_activityReading(activityReading,LRCreadingDuration);
 
 % Fill in any gaps in CS
-[timeUTC,CS] = LRCgapFill(lightReading.timeUTC,lightReading.cs,LRCsampleInc);
+[timeUTC,CS] = LRCgapFill(lightReading.timeUTC,lightReading.cs,LRClightSampleInc);
 
 % Calculate target phase
 targetPhase = bedWakeTimes2TargetPhase(bedTime,riseTime);
@@ -87,7 +87,7 @@ else
 end
 
 % Advance pacemaker model solution to end of light data
-[tnLocalRel,xn,xcn] = pacemakerModelRun(t0LocalRel,x0,xc0,LRCsampleInc,CS);
+[tnLocalRel,xn,xcn] = pacemakerModelRun(t0LocalRel,x0,xc0,LRClightSampleInc,CS);
 
 % Calculate pacemaker state from activity acrophase
 [~,xAcrophase,xcAcrophase] = refPhaseTime2StateAtTime(acrophaseTime,mod(tnLocalRel,86400),'activityAcrophase');
@@ -102,7 +102,7 @@ if abs(phaseDiff) > LRCphaseDiffMax
     startTimeNewDataLocal = LRCutc2local(activityReading.timeUTC(idx),activityReading.timeOffset(idx));
     startTimeNewDataRel = LRCabs2relTime(startTimeNewDataLocal);
     [t0LocalRel,x0,xc0] = refPhaseTime2StateAtTime(acrophaseTime,startTimeNewDataRel,'activityAcrophase');
-    [tnLocalRel,xn,xcn] = pacemakerModelRun(t0LocalRel,x0,xc0,LRCsampleInc,CS);
+    [tnLocalRel,xn,xcn] = pacemakerModelRun(t0LocalRel,x0,xc0,LRClightSampleInc,CS);
 end
 
 % convert to absoulute Unix time (seconds since Jan 1, 1970)
