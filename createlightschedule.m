@@ -82,11 +82,13 @@ if ~isempty(q)
     % pad lightScheduleArray with zeros at start and end in order to find
     % treatment durations that start (or end) at first (last) array element.
     durations = LRCtreatmentInc*(find(diff([0;lightScheduleArray;0]) < 0) - find(diff([0;lightScheduleArray;0]) > 0));
+    scheduleStruct.n = numel(startTimes);
     scheduleStruct.startTimeUTC = startTimes';
     scheduleStruct.durationMins = durations/60;
 else
-    scheduleStruct.startTimeUTC = [];
-    scheduleStruct.durationMins = [];
+    scheduleStruct.n = 0;
+    scheduleStruct.startTimeUTC = double.empty(LRCtreatmentSize);
+    scheduleStruct.durationMins = double.empty(LRCtreatmentSize);
 end
 
 end
