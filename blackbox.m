@@ -70,7 +70,7 @@ activityTimeLocal = LRCutc2local(activityReading.timeUTC,activityReading.timeOff
 acrophaseTime = LRCacrophaseAngle2Time(acrophaseAngle);
 
 % Check if the pacemakerStruct has previous values
-if isempty(lastPacemaker.tn) || isnan(lastPacemaker.tn)
+if LRCisValidPacemaker(lastPacemaker)
     [t0LocalRel,x0,xc0] = refPhaseTime2StateAtTime(acrophaseTime,mod(activityTimeLocal(1),86400),'activityAcrophase');
     % convert back to absolute UTC Unix time
     t0Local = t0LocalRel + 86400*floor(activityTimeLocal(1)/86400);
