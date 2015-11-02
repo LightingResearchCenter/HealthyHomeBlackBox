@@ -1,4 +1,4 @@
-function OutputStruct = wrapper(InputStruct)
+function OutputStruct = wrapper(InputStruct,varargin)
 %WRAPPER wrapper function for BLACKBOX
 %   Parses inputs and outputs. Reads input data from file.
 %
@@ -42,18 +42,27 @@ activityReading = struct(                               ...
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 % DELETE ME
-% Only use readings before runTimeUTC
-% For testing ONLY
-% Light Reading
-idxL = lightReading.timeUTC <= runTimeUTC;
-lightReading.timeUTC(~idxL) = [];
-lightReading.timeOffset(~idxL) = [];
-lightReading.cs(~idxL) = [];
-% Activity Reading
-idxA = lightReading.timeUTC <= runTimeUTC;
-activityReading.timeUTC(~idxA) = [];
-activityReading.timeOffset(~idxA) = [];
-activityReading.activityIndex(~idxA) = [];
+
+if nargin > 1
+    cropForDebug = varargin{1};
+else
+    cropForDebug = false;
+end
+
+if cropForDebug
+    % Only use readings before runTimeUTC
+    % For testing ONLY
+    % Light Reading
+    idxL = lightReading.timeUTC <= runTimeUTC;
+    lightReading.timeUTC(~idxL) = [];
+    lightReading.timeOffset(~idxL) = [];
+    lightReading.cs(~idxL) = [];
+    % Activity Reading
+    idxA = lightReading.timeUTC <= runTimeUTC;
+    activityReading.timeUTC(~idxA) = [];
+    activityReading.timeOffset(~idxA) = [];
+    activityReading.activityIndex(~idxA) = [];
+end
 % END of DELETE ME
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

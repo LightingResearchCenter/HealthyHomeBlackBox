@@ -11,6 +11,7 @@ bedTime         = 22.5; % 10:30 pm, hours, 0 <= bedTime < 24
 riseTime        = 7.5;  % 07:30 am, hours, 0 <= wakeTime < 24
 runTimeUTC      = [1446437114, 1446441885, 1446451488, 1446474304]; % Normally from system
 runTimeOffset	= [-5,-5,-5,-5]; % Normally from system
+cropForDebug = true;
 
 %% Initialize file paths
 testDir = 'testData_2015-11-02';
@@ -58,7 +59,7 @@ for iRun = 1:numel(runTimeUTC)
 
     % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ %
     % RUN THE MODEL                    %
-    OutputStruct = wrapper(InputStruct);
+    OutputStruct = wrapper(InputStruct,cropForDebug);
     % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ %
 
     % Close the files
