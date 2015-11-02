@@ -40,6 +40,23 @@ activityReading = struct(                               ...
     'activityIndex',	activityReading0.activityIndex  ...
     );
 
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+% DELETE ME
+% Only use readings before runTimeUTC
+% For testing ONLY
+% Light Reading
+idxL = lightReading.timeUTC <= runTimeUTC;
+lightReading.timeUTC(~idxL) = [];
+lightReading.timeOffset(~idxL) = [];
+lightReading.cs(~idxL) = [];
+% Activity Reading
+idxA = lightReading.timeUTC <= runTimeUTC;
+activityReading.timeUTC(~idxA) = [];
+activityReading.timeOffset(~idxA) = [];
+activityReading.activityIndex(~idxA) = [];
+% END of DELETE ME
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 % Call blackbox
 [treatment,pacemaker,distanceToGoal] = blackbox(    ...
     runTimeUTC,runTimeOffset,bedTime,riseTime,      ...
