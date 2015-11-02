@@ -1,0 +1,19 @@
+function treatment = LRCread_treatment(fileID)
+%LRCREAD_TREATMENT Replace with native C functions
+%   For use with MATLAB only. DO NOT use for codegen.
+%   Does NOT support commas within strings.
+
+formatSpec = '%f %f %s %s';
+C = textscan(fileID,formatSpec,...
+    'Delimiter',',','HeaderLines',1,'TreatAsEmpty','null');
+frewind(fileID);
+
+treatment = struct(         ...
+    'startTime',	C(1),	...
+    'durationMins', C(2),	...
+    'subjectId',	C(3),	...
+    'hubId',        C(4)	...
+    );
+
+end
+
