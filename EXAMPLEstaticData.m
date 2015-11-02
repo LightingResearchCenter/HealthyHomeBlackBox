@@ -23,7 +23,7 @@ pacemakerTemplate = [testDir,filesep,'pacemakerTemplate.csv'];
 pacemakerFromApp = [testDir,filesep,'pacemakerFromApp.csv'];
 treatmentPath = [testDir,filesep,'treatment.csv'];
 treatmentTemplate = [testDir,filesep,'treatmentTemplate.csv'];
-treatmentFromApp = [testDir,filesep,'pacemakerFromApp.csv'];
+treatmentFromApp = [testDir,filesep,'treatmentFromApp.csv'];
 
 if exist(filePaths.pacemaker,'file') == 2
     % Delete existing pacemaker file
