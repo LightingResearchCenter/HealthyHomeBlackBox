@@ -3,8 +3,8 @@ function treatment = LRCread_treatment(fileID)
 %   For use with MATLAB only. DO NOT use for codegen.
 %   Does NOT support commas within strings.
 
-formatSpec = '%f %f %s %s';
-C = textscan(fileID,formatSpec,...
+formatSpec = '%f %f %s %s \r\n';
+C = textscan(fileID,formatSpec,inf,...
     'Delimiter',',','HeaderLines',1,'TreatAsEmpty','null');
 frewind(fileID);
 

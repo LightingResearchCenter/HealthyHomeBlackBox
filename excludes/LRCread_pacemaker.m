@@ -3,8 +3,8 @@ function pacemaker = LRCread_pacemaker(fileID)
 %   For use with MATLAB only. DO NOT use for codegen.
 %   Does NOT support commas within strings.
 
-formatSpec = '%f %f %s %s %f %f %f %f %f %f';
-C = textscan(fileID,formatSpec,...
+formatSpec = '%f %f %s %s %f %f %f %f %f %f \r\n';
+C = textscan(fileID,formatSpec,inf,...
     'Delimiter',',','HeaderLines',1,'TreatAsEmpty','null');
 frewind(fileID);
 
