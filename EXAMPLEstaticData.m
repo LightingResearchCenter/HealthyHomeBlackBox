@@ -43,7 +43,7 @@ for iRun = 1:numel(runTimeUTC)
     copyfile(treatmentTemplate,treatmentPath);
 
     % Open the files for read only
-    filePointers = LRCopen(filePaths,'r');
+    filePointers = LRCopen(filePaths,'rt');
 
     % Initialize input struct
     InputStruct = struct(                                           ...
@@ -65,7 +65,7 @@ for iRun = 1:numel(runTimeUTC)
     fclose('all');
 
     % Reopen the pacemaker file for appending
-    fid = fopen(filePaths.pacemaker,'a');
+    fid = fopen(filePaths.pacemaker,'at');
     % Append new pacemaker struct to file
     LRCappend_file(fid,OutputStruct.pacemaker);
     fclose(fid);
@@ -79,7 +79,7 @@ for iRun = 1:numel(runTimeUTC)
     treatment.hubId = repmat({'debug'},size(treatment.startTime));
     
     % Reopen the treatment file for appending
-    fid = fopen(treatmentPath,'a');
+    fid = fopen(treatmentPath,'at');
     % Append new pacemaker struct to file
     LRCappend_file(fid,treatment);
     fclose(fid);
@@ -88,13 +88,15 @@ end
 
 %% Compare MATLAB pacemaker to that from the App
 % Open MATLAB generated pacemaker file
-fidMat = fopen(filePaths.pacemaker,'r');
+fidMat = fopen(filePaths.pacemaker,'rt');
 % Read contents of MATLAB pacemaker
 pacemakerArrayMat = LRCread_pacemaker(fidMat);
+fclose(fidMat);
 % Open App generated pacemaker file
-fidApp = fopen(pacemakerFromApp,'r');
+fidApp = fopen(pacemakerFromApp,'rt');
 % Read contents of App pacemaker
 pacemakerArrayApp = LRCread_pacemaker(fidApp);
+fclose(fidApp);
 
 % Calculate delta for all numeric variables
 % delta = MATLAB Result - App Result
@@ -111,13 +113,15 @@ display(any2csv(pacemakerDelta,'|',1));
 
 %% Compare LAST MATLAB treatment to that from the App
 % Open MATLAB generated treatment file
-fidMat = fopen(treatmentPath,'r');
+fidMat = fopen(treatmentPath,'rt');
 % Read contents of MATLAB treatment
 treatmentMat = LRCread_treatment(fidMat);
+fclose(fidMat);
 % Open App generated treatment file
-fidApp = fopen(pacemakerFromApp,'r');
+fidApp = fopen(pacemakerFromApp,'rt');
 % Read contents of App treatment
 treatmentApp = LRCread_treatment(fidApp);
+fclose(fidApp);
 
 % Calculate delta for all numeric variables
 % delta = MATLAB Result - App Result

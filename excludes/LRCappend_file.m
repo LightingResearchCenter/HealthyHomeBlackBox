@@ -5,8 +5,8 @@ function LRCappend_file(fileID,dataStruct)
 fields = fieldnames(dataStruct);
 
 for iValue = 1:numel(dataStruct.(fields{1}))
-    
-    for iField = 1:numel(fields)
+    nField = numel(fields);
+    for iField = 1:nField
         % Get entry value
         if isempty(dataStruct.(fields{iField}))
             thisValue = 'null';
@@ -19,7 +19,11 @@ for iValue = 1:numel(dataStruct.(fields{1}))
         
         % Define format
         thisFormat = determineFormat(thisValue);
-        formatSpec = [thisFormat,','];
+        if iField < nField
+            formatSpec = [thisFormat,','];
+        else
+            formatSpec = thisFormat;
+        end
 
         % Write to file
         fprintf(fileID,formatSpec,thisValue);

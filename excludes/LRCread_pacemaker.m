@@ -3,10 +3,22 @@ function pacemaker = LRCread_pacemaker(fileID)
 %   For use with MATLAB only. DO NOT use for codegen.
 %   Does NOT support commas within strings.
 
-formatSpec = '%f %f %s %s %f %f %f %f %f %f \r\n';
-C = textscan(fileID,formatSpec,inf,...
-    'Delimiter',',','HeaderLines',1,'TreatAsEmpty','null');
-frewind(fileID);
+formatSpec = '%f %f %s %s %f %f %f %f %f %f %*[^\n]';
+C = {};
+while ~feof(fileID)
+    D = textscan(fileID,formatSpec,inf,...
+        'Delimiter',',','HeaderLines',1,'TreatAsEmpty','null');
+    C = [C;D];
+end
+
+if size(C,1) > 1
+    % Find empty cells
+    idxEmpty = cellfun(@isempty,C);
+    % Find empty rows
+    rowEmpty = all(idxEmpty,2);
+    % Delete empty rows
+    C(rowEmpty,:) = [];
+end
 
 pacemaker = struct(         ...
     'runTimeUTC',	C(1),	...
