@@ -101,16 +101,18 @@ fclose(fidApp);
 
 % Calculate delta for all numeric variables
 % delta = MATLAB Result - App Result
-pacemakerDelta = struct;
+pacemakerDeltaStruct = struct;
 varNames = fieldnames(pacemakerArrayMat);
 for iVar = 1:numel(varNames)
     thisVar = varNames{iVar};
     if isnumeric(pacemakerArrayMat.(thisVar)) && isnumeric(pacemakerArrayApp.(thisVar))
-        pacemakerDelta.(thisVar) = pacemakerArrayMat.(thisVar) - pacemakerArrayApp.(thisVar);
+        pacemakerDeltaStruct.(thisVar) = pacemakerArrayMat.(thisVar) - pacemakerArrayApp.(thisVar);
     end
 end
+
+pacemakerDelta = [fieldnames(pacemakerDeltaStruct)';num2cell(cell2mat(struct2cell(pacemakerDeltaStruct)'))];
 display('pacemakerDelta = MATLAB Pacemaker - App Pacemaker');
-display(any2csv(pacemakerDelta,'|',1));
+display(pacemakerDelta);
 
 %% Compare LAST MATLAB treatment to that from the App
 % Open MATLAB generated treatment file
@@ -126,7 +128,7 @@ fclose(fidApp);
 
 % Calculate delta for all numeric variables
 % delta = MATLAB Result - App Result
-treatmentDelta = struct;
+treatmentDeltaStruct = struct;
 varNames = fieldnames(treatmentMat);
 for iVar = 1:numel(varNames)
     thisVar = varNames{iVar};
@@ -134,19 +136,20 @@ for iVar = 1:numel(varNames)
         nMat = numel(treatmentMat.(thisVar));
         nApp = numel(treatmentApp.(thisVar));
         if nMat == nApp
-            treatmentDelta.(thisVar) = treatmentMat.(thisVar) - treatmentApp.(thisVar);
+            treatmentDeltaStruct.(thisVar) = treatmentMat.(thisVar) - treatmentApp.(thisVar);
         elseif nMat > nApp
             warning('More MATLAB treatments than App treatments')
             temp1 = treatmentMat.(thisVar)(1:nApp) - treatmentApp.(thisVar);
             temp2 = treatmentMat.(thisVar)(nApp+1:end) - 0;
-            treatmentDelta.(thisVar) = [temp1;temp1];
+            treatmentDeltaStruct.(thisVar) = [temp1;temp1];
         elseif nApp > nMat
             warning('More App treatments than MATLAB treatments')
             temp1 = treatmentMat.(thisVar) - treatmentApp.(thisVar)(1:nMat);
             temp2 = 0 - treatmentApp.(thisVar)(nMat+1:end);
-            treatmentDelta.(thisVar) = [temp1;temp1];
+            treatmentDeltaStruct.(thisVar) = [temp1;temp1];
         end
     end
 end
+treatmentDelta = [fieldnames(treatmentDeltaStruct)';num2cell(cell2mat(struct2cell(treatmentDeltaStruct)'))];
 display('treatmentDelta = MATLAB Treatment - App Treatment');
-display(any2csv(treatmentDelta,'|',1));
+display(treatmentDelta);

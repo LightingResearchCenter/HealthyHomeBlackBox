@@ -100,14 +100,16 @@ fclose(fid);
 
 % Calculate delta for all numeric variables
 % delta = MATLAB Result - V1 Result
-pacemakerDelta = struct;
+pacemakerDeltaStruct = struct;
 varNames = fieldnames(pacemakerArrayMat);
 for iVar = 1:numel(varNames)
     thisVar = varNames{iVar};
     if isnumeric(pacemakerArrayMat.(thisVar)) && isnumeric(pacemakerArrayV1.(thisVar))
-        pacemakerDelta.(thisVar) = pacemakerArrayMat.(thisVar) - pacemakerArrayV1.(thisVar);
+        pacemakerDeltaStruct.(thisVar) = pacemakerArrayMat.(thisVar) - pacemakerArrayV1.(thisVar);
     end
 end
+
+pacemakerDelta = [fieldnames(pacemakerDeltaStruct)';num2cell(cell2mat(struct2cell(pacemakerDeltaStruct)'))];
 display('pacemakerDelta = MATLAB Pacemaker - MATLAB/C v1 Pacemaker');
-display(any2csv(pacemakerDelta,'|',1));
+display(pacemakerDelta);
 
