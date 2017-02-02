@@ -3,7 +3,7 @@ function treatmentCS = LRCtreatmentCS
 %   Detailed explanation goes here
 
 % Nominal level of treatment CS
-treatmentCS = 0.4;
+treatmentCS = 0.5;
 
 end
 

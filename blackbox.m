@@ -116,7 +116,7 @@ distanceToGoal = LRCdistanceToGoal(currentRefPhaseTime,targetPhase);
 unavailability = LRCbed2unavail(bedTime,riseTime,runTimeUTC,runTimeOffset);
 
 % Calculate light treatment schedule
-treatment = createlightschedule(tn,xn,xcn,targetPhase,unavailability);
+treatment = createlightschedule(tn,xn,xcn,targetPhase,unavailability,runTimeUTC);
 
 % Assign values to output
 pacemaker.x0  = x0;

@@ -3,7 +3,7 @@ function sampleInc = LRClightSampleInc
 %   Detailed explanation goes here
 
 % Nominal sampling increment size in seconds of the light logger
-sampleInc = 60;
+sampleInc = 180;
 
 end
 

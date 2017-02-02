@@ -1,4 +1,4 @@
-function [scheduleStruct] = createlightschedule(t0,x0,xc0,targetReferencePhaseTime,unavailability)
+function [scheduleStruct] = createlightschedule(t0,x0,xc0,targetReferencePhaseTime,unavailability,runTimeUTC)
 % CREATELIGHTSCHEDULE creates a schedule of light treatment times based on
 % the current state of the pacemaker and a target phase.
 %
@@ -30,7 +30,7 @@ for iIteration = 1:nIterations
     xTarget = -cos(2*pi*(t1/(24*3600) - targetReferencePhaseTime/(24*3600)));
     xcTarget = sin(2*pi*(t1/(24*3600) - targetReferencePhaseTime/(24*3600)));
     
-    if LRCisAvail(unavailability,t1,t2)
+    if LRCisAvail(unavailability,t1,t2,runTimeUTC)
         % Simulate increment of time by running the model with no light
         [xfDark,xcfDark] = rk4stepperSec(x0,xc0,0,t1,t2);
         
